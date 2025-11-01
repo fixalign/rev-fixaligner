@@ -33,6 +33,12 @@ export default function PatientTable({
                 Price
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Variable Cost
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Fixed Cost
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Total Cost
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -72,6 +78,15 @@ export default function PatientTable({
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                   {formatCurrency(treatment.price)}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600">
+                  {formatCurrency(
+                    treatment.variableCosts.totalVariableCost +
+                      treatment.directCosts.totalDirectCost
+                  )}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600">
+                  {formatCurrency(treatment.allocatedFixedCost || 0)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600">
                   {formatCurrency(treatment.totalCost)}

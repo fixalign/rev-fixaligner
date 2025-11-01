@@ -78,21 +78,6 @@ export default function CostBreakdown({ treatment }: CostBreakdownProps) {
                 {formatCurrency(treatment.variableCosts.packagingBox.totalCost)}
               </span>
             </div>
-            <div className="flex justify-between text-sm font-semibold pt-2 border-t">
-              <span className="text-gray-800">Total Variable Costs</span>
-              <span className="text-red-600">
-                {formatCurrency(treatment.variableCosts.totalVariableCost)}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Direct Costs */}
-        <div>
-          <h4 className="text-lg font-semibold text-gray-800 mb-3">
-            Direct Costs
-          </h4>
-          <div className="space-y-2 pl-4">
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">
                 Design ({treatment.directCosts.design.quantity} ×{" "}
@@ -123,9 +108,12 @@ export default function CostBreakdown({ treatment }: CostBreakdownProps) {
               </span>
             </div>
             <div className="flex justify-between text-sm font-semibold pt-2 border-t">
-              <span className="text-gray-800">Total Direct Costs</span>
+              <span className="text-gray-800">Total Variable Costs</span>
               <span className="text-red-600">
-                {formatCurrency(treatment.directCosts.totalDirectCost)}
+                {formatCurrency(
+                  treatment.variableCosts.totalVariableCost +
+                    treatment.directCosts.totalDirectCost
+                )}
               </span>
             </div>
           </div>

@@ -22,6 +22,146 @@ export default function Home() {
   const [yearlyRates, setYearlyRates] = useState<YearlyRates>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSimulation, setIsSimulation] = useState(false);
+
+  // Generate simulation data
+  const generateSimulationData = useMemo(() => {
+    return (): TreatmentRecord[] => {
+      const currentYear = new Date().getFullYear();
+      const simulationData: TreatmentRecord[] = [];
+
+      // Get rates for current year or use defaults
+      const rates = yearlyRates[currentYear] || {
+        variable: {
+          sheetRate: 8,
+          caseRate: 45,
+          resinRate: 120,
+          bagRate: 0.5,
+          boxRate: 15,
+        },
+        direct: {
+          designRate: 150,
+          alcoholRate: 10,
+          tissuesRate: 5,
+          toolsRate: 20,
+        },
+        fixed: {
+          rent: 5000,
+          utilities: 800,
+          salaries: 15000,
+          internet: 200,
+          totalFixedCost: 21000,
+        },
+      };
+
+      // Calculate fixed cost per patient (for current year, 11 months)
+      const allocatedFixedCost = (rates.fixed.totalFixedCost * 11) / 500;
+
+      for (let i = 1; i <= 500; i++) {
+        const numberOfSteps = 20;
+        const price = 1000;
+
+        // Calculate variable costs
+        const sheetsQty = numberOfSteps * 2 + 4;
+        const resinQty = (0.8 / 22) * (numberOfSteps + 2);
+
+        const sheetsCost = sheetsQty * rates.variable.sheetRate;
+        const caseCost = 1 * rates.variable.caseRate;
+        const resinCost = resinQty * rates.variable.resinRate;
+        const bagCost = 1 * rates.variable.bagRate;
+        const boxCost = 1 * rates.variable.boxRate;
+
+        const totalVariableCost =
+          sheetsCost + caseCost + resinCost + bagCost + boxCost;
+
+        // Calculate direct costs
+        const designCost = 1 * rates.direct.designRate;
+        const alcoholCost = rates.direct.alcoholRate;
+        const tissuesCost = rates.direct.tissuesRate;
+        const toolsCost = (rates.variable.sheetRate * sheetsQty * 3) / 5 + 2;
+
+        const totalDirectCost =
+          designCost + alcoholCost + tissuesCost + toolsCost;
+
+        const totalCost =
+          totalVariableCost + totalDirectCost + allocatedFixedCost;
+        const profit = price - totalCost;
+        const profitMargin = (profit / price) * 100;
+
+        simulationData.push({
+          id: `SIM-${i.toString().padStart(4, "0")}`,
+          name: `Simulation Patient ${i}`,
+          email: `patient${i}@simulation.com`,
+          phone: `555-${i.toString().padStart(4, "0")}`,
+          clinicName: `Clinic ${(i % 10) + 1}`,
+          scannerId: "1",
+          printerId: "1",
+          status: "active",
+          numberOfSteps: numberOfSteps,
+          refinement: false,
+          refinementSteps: 0,
+          price: price,
+          treatmentStarted: new Date(currentYear, 0, 1),
+          treatmentYear: currentYear,
+          paymentRemaining: 0,
+          variableCosts: {
+            sheets: {
+              quantity: sheetsQty,
+              ratePerSheet: rates.variable.sheetRate,
+              totalCost: sheetsCost,
+            },
+            caseAndAccessories: {
+              quantity: 1,
+              ratePerCase: rates.variable.caseRate,
+              totalCost: caseCost,
+            },
+            resin: {
+              quantity: resinQty,
+              ratePerLiter: rates.variable.resinRate,
+              totalCost: resinCost,
+            },
+            bag: {
+              quantity: 1,
+              ratePerBag: rates.variable.bagRate,
+              totalCost: bagCost,
+            },
+            packagingBox: {
+              quantity: 1,
+              ratePerBox: rates.variable.boxRate,
+              totalCost: boxCost,
+            },
+            totalVariableCost: totalVariableCost,
+          },
+          directCosts: {
+            design: {
+              quantity: 1,
+              ratePerDesign: rates.direct.designRate,
+              totalCost: designCost,
+            },
+            alcohol: {
+              ratePerTreatment: rates.direct.alcoholRate,
+              totalCost: alcoholCost,
+            },
+            tissues: {
+              ratePerTreatment: rates.direct.tissuesRate,
+              totalCost: tissuesCost,
+            },
+            productionTools: {
+              ratePerTreatment: toolsCost,
+              totalCost: toolsCost,
+            },
+            totalDirectCost: totalDirectCost,
+          },
+          allocatedFixedCost: allocatedFixedCost,
+          totalCost: totalCost,
+          profit: profit,
+          profitMargin: profitMargin,
+        });
+      }
+
+      return simulationData;
+    };
+  }, [yearlyRates]);
 
   // Fetch patients and cost rates from database
   useEffect(() => {
@@ -70,11 +210,12 @@ export default function Home() {
 
   // Filter treatments by selected year (no recalculation needed - backend does it)
   const filteredTreatments = useMemo(() => {
+    const dataToFilter = isSimulation ? generateSimulationData() : treatments;
     if (selectedYear === "all") {
-      return treatments;
+      return dataToFilter;
     }
-    return treatments.filter((t) => t.treatmentYear === selectedYear);
-  }, [treatments, selectedYear]);
+    return dataToFilter.filter((t) => t.treatmentYear === selectedYear);
+  }, [treatments, selectedYear, isSimulation, generateSimulationData]);
 
   // Calculate fixed costs for the selected year (or average for 'all')
   const currentFixedCosts = useMemo(() => {
@@ -166,18 +307,35 @@ export default function Home() {
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">
                   Treatment Costs & Profitability Dashboard
+                  {isSimulation && (
+                    <span className="ml-3 text-lg text-blue-600">
+                      (Simulation Mode)
+                    </span>
+                  )}
                 </h1>
                 <p className="mt-1 text-sm text-gray-600">
                   Track patient treatments, costs, payments, and financial
                   performance
                 </p>
               </div>
-              <Link
-                href="/constants"
-                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-              >
-                Manage Constants
-              </Link>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setIsSimulation(!isSimulation)}
+                  className={`px-4 py-2 rounded-md font-medium ${
+                    isSimulation
+                      ? "bg-orange-600 hover:bg-orange-700 text-white"
+                      : "bg-blue-600 hover:bg-blue-700 text-white"
+                  }`}
+                >
+                  {isSimulation ? "📊 Exit Simulation" : "🎮 Run Simulation"}
+                </button>
+                <Link
+                  href="/constants"
+                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                >
+                  Manage Constants
+                </Link>
+              </div>
             </div>
           </div>
         </header>
@@ -204,18 +362,35 @@ export default function Home() {
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
                 Treatment Costs & Profitability Dashboard
+                {isSimulation && (
+                  <span className="ml-3 text-lg text-blue-600">
+                    (Simulation Mode)
+                  </span>
+                )}
               </h1>
               <p className="mt-1 text-sm text-gray-600">
                 Track patient treatments, costs, payments, and financial
                 performance
               </p>
             </div>
-            <Link
-              href="/constants"
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-            >
-              Manage Constants
-            </Link>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setIsSimulation(!isSimulation)}
+                className={`px-4 py-2 rounded-md font-medium ${
+                  isSimulation
+                    ? "bg-orange-600 hover:bg-orange-700 text-white"
+                    : "bg-blue-600 hover:bg-blue-700 text-white"
+                }`}
+              >
+                {isSimulation ? "📊 Exit Simulation" : "🎮 Run Simulation"}
+              </button>
+              <Link
+                href="/constants"
+                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+              >
+                Manage Constants
+              </Link>
+            </div>
           </div>
         </div>
       </header>
