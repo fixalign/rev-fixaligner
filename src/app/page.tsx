@@ -1,63 +1,305 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useMemo, useEffect } from "react";
+import Link from "next/link";
+import FinancialOverview from "@/components/FinancialOverview";
+import BreakEvenAnalysis from "@/components/BreakEvenAnalysis";
+import PatientTable from "@/components/PatientTable";
+import CostBreakdown from "@/components/CostBreakdown";
+import CostSettings, { YearlyRates } from "@/components/CostSettings";
+import {
+  calculateDashboardStats,
+  calculateFinancialSummary,
+} from "@/lib/calculations";
+import { TreatmentRecord } from "@/types";
 
 export default function Home() {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+  const [selectedPatientId, setSelectedPatientId] = useState<string | null>(
+    null
+  );
+  const [selectedYear, setSelectedYear] = useState<number | "all">("all");
+  const [treatments, setTreatments] = useState<TreatmentRecord[]>([]);
+  const [yearlyRates, setYearlyRates] = useState<YearlyRates>({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch patients and cost rates from database
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        // Fetch patients (already calculated in backend)
+        const patientsRes = await fetch("/api/patients");
+        const patientsData = await patientsRes.json();
+
+        if (!patientsData.success) {
+          throw new Error(patientsData.error || "Failed to fetch patients");
+        }
+
+        // Fetch cost rates
+        const ratesRes = await fetch("/api/cost-rates");
+        const ratesData = await ratesRes.json();
+
+        if (!ratesData.success) {
+          throw new Error(ratesData.error || "Failed to fetch cost rates");
+        }
+
+        setTreatments(patientsData.data);
+        setYearlyRates(ratesData.data);
+      } catch (err) {
+        console.error("Error fetching data:", err);
+        setError(err instanceof Error ? err.message : "Failed to load data");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
+
+  // Get unique years from treatments
+  const availableYears = useMemo(() => {
+    if (treatments.length === 0) return [];
+    const years = treatments
+      .filter((t) => t.treatmentYear != null)
+      .map((t) => t.treatmentYear!);
+    return Array.from(new Set(years)).sort();
+  }, [treatments]);
+
+  // Filter treatments by selected year (no recalculation needed - backend does it)
+  const filteredTreatments = useMemo(() => {
+    if (selectedYear === "all") {
+      return treatments;
+    }
+    return treatments.filter((t) => t.treatmentYear === selectedYear);
+  }, [treatments, selectedYear]);
+
+  // Calculate fixed costs for the selected year (or average for 'all')
+  const currentFixedCosts = useMemo(() => {
+    const defaultFixed = {
+      rent: 5000,
+      utilities: 800,
+      salaries: 15000,
+      internet: 200,
+      totalFixedCost: 21000,
+    };
+
+    if (selectedYear === "all") {
+      // Calculate average fixed costs across all years
+      const years = Object.keys(yearlyRates).map(Number);
+      if (years.length === 0) return defaultFixed;
+
+      const avgRent =
+        years.reduce((sum, y) => sum + yearlyRates[y].fixed.rent, 0) /
+        years.length;
+      const avgUtilities =
+        years.reduce((sum, y) => sum + yearlyRates[y].fixed.utilities, 0) /
+        years.length;
+      const avgSalaries =
+        years.reduce((sum, y) => sum + yearlyRates[y].fixed.salaries, 0) /
+        years.length;
+      const avgInternet =
+        years.reduce((sum, y) => sum + yearlyRates[y].fixed.internet, 0) /
+        years.length;
+      return {
+        rent: avgRent,
+        utilities: avgUtilities,
+        salaries: avgSalaries,
+        internet: avgInternet,
+        totalFixedCost: avgRent + avgUtilities + avgSalaries + avgInternet,
+      };
+    }
+    return yearlyRates[selectedYear]?.fixed || defaultFixed;
+  }, [selectedYear, yearlyRates]);
+
+  const stats = calculateDashboardStats(filteredTreatments, currentFixedCosts);
+  const financialSummary = calculateFinancialSummary(
+    filteredTreatments,
+    currentFixedCosts
+  );
+  const selectedPatient = selectedPatientId
+    ? filteredTreatments.find((t) => t.id === selectedPatientId)
+    : null;
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading dashboard data...</p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="bg-white rounded-lg shadow-lg p-8 max-w-md">
+          <div className="text-red-600 text-5xl mb-4">⚠️</div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            Error Loading Data
+          </h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Show empty state
+  if (treatments.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-100">
+        <header className="bg-white shadow">
+          <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  Treatment Costs & Profitability Dashboard
+                </h1>
+                <p className="mt-1 text-sm text-gray-600">
+                  Track patient treatments, costs, payments, and financial
+                  performance
+                </p>
+              </div>
+              <Link
+                href="/constants"
+                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+              >
+                Manage Constants
+              </Link>
+            </div>
+          </div>
+        </header>
+        <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+          <div className="bg-white rounded-lg shadow-lg p-12 text-center">
+            <div className="text-6xl mb-4">📊</div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              No Patients Found
+            </h2>
+            <p className="text-gray-600">
+              No patient data is available in the database yet.
+            </p>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-100">
+      <header className="bg-white shadow">
+        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">
+                Treatment Costs & Profitability Dashboard
+              </h1>
+              <p className="mt-1 text-sm text-gray-600">
+                Track patient treatments, costs, payments, and financial
+                performance
+              </p>
+            </div>
+            <Link
+              href="/constants"
+              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+            >
+              Manage Constants
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div className="px-4 py-6 sm:px-0 space-y-6">
+          <CostSettings
+            selectedYear={selectedYear}
+            onYearChange={setSelectedYear}
+            yearlyRates={yearlyRates}
+            onYearlyRatesChange={setYearlyRates}
+            availableYears={availableYears}
+          />
+
+          <FinancialOverview stats={stats} />
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <BreakEvenAnalysis summary={financialSummary} />
+
+            {selectedPatient ? (
+              <div>
+                <button
+                  onClick={() => setSelectedPatientId(null)}
+                  className="mb-4 text-sm text-blue-600 hover:text-blue-800"
+                >
+                  ← Back to all patients
+                </button>
+                <CostBreakdown treatment={selectedPatient} />
+              </div>
+            ) : (
+              <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-xl font-bold text-gray-900 mb-4">
+                  Fixed Costs (Monthly)
+                  {selectedYear !== "all" && ` - ${selectedYear}`}
+                </h2>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Rent</span>
+                    <span className="font-medium text-gray-900">
+                      ${currentFixedCosts.rent.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Utilities</span>
+                    <span className="font-medium text-gray-900">
+                      ${currentFixedCosts.utilities.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Salaries</span>
+                    <span className="font-medium text-gray-900">
+                      ${currentFixedCosts.salaries.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Internet</span>
+                    <span className="font-medium text-gray-900">
+                      ${currentFixedCosts.internet.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between pt-3 border-t-2 border-gray-300">
+                    <span className="font-bold text-gray-900">
+                      Total Fixed Costs
+                    </span>
+                    <span className="font-bold text-lg text-red-600">
+                      ${currentFixedCosts.totalFixedCost.toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                  <p className="text-sm text-gray-700">
+                    💡 Click on a patient in the table below to see detailed
+                    cost breakdown
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <PatientTable
+            treatments={filteredTreatments}
+            onPatientClick={setSelectedPatientId}
+          />
         </div>
       </main>
     </div>

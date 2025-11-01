@@ -1,0 +1,111 @@
+import { TreatmentRecord } from "@/types";
+import { formatCurrency, formatPercentage } from "@/lib/calculations";
+
+interface PatientTableProps {
+  treatments: TreatmentRecord[];
+  onPatientClick?: (patientId: string) => void;
+}
+
+export default function PatientTable({
+  treatments,
+  onPatientClick,
+}: PatientTableProps) {
+  return (
+    <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="px-6 py-4 border-b border-gray-200">
+        <h2 className="text-2xl font-bold text-gray-900">Patient Treatments</h2>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Patient
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Clinic
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Steps
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Price
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Total Cost
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Profit
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Margin
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Payment Due
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {treatments.map((treatment) => (
+              <tr
+                key={treatment.id}
+                className="hover:bg-gray-50 cursor-pointer"
+                onClick={() => onPatientClick?.(treatment.id)}
+              >
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm font-medium text-gray-900">
+                    {treatment.name}
+                  </div>
+                  <div className="text-sm text-gray-500">{treatment.id}</div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {treatment.clinicName}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {treatment.numberOfSteps}
+                  {treatment.refinement && (
+                    <span className="ml-1 text-xs text-blue-600">
+                      (+{treatment.refinementSteps}R)
+                    </span>
+                  )}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  {formatCurrency(treatment.price)}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600">
+                  {formatCurrency(treatment.totalCost)}
+                </td>
+                <td
+                  className={`px-6 py-4 whitespace-nowrap text-sm font-semibold ${
+                    treatment.profit >= 0 ? "text-green-600" : "text-red-600"
+                  }`}
+                >
+                  {formatCurrency(treatment.profit)}
+                </td>
+                <td
+                  className={`px-6 py-4 whitespace-nowrap text-sm ${
+                    treatment.profitMargin >= 0
+                      ? "text-gray-900"
+                      : "text-red-600"
+                  }`}
+                >
+                  {formatPercentage(treatment.profitMargin)}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                  {treatment.paymentRemaining > 0 ? (
+                    <span className="text-orange-600 font-medium">
+                      {formatCurrency(treatment.paymentRemaining)}
+                    </span>
+                  ) : (
+                    <span className="text-green-600">Paid</span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
