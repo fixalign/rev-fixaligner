@@ -24,6 +24,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSimulation, setIsSimulation] = useState(false);
+  const [simulationCount, setSimulationCount] = useState(500);
 
   // Generate simulation data
   const generateSimulationData = useMemo(() => {
@@ -58,9 +59,10 @@ export default function Home() {
       };
 
       // Calculate fixed cost per patient (for current year, 11 months)
-      const allocatedFixedCost = (rates.fixed.totalFixedCost * 11) / 500;
+      const allocatedFixedCost =
+        (rates.fixed.totalFixedCost * 11) / simulationCount;
 
-      for (let i = 1; i <= 500; i++) {
+      for (let i = 1; i <= simulationCount; i++) {
         const numberOfSteps = 20;
         const price = 1000;
 
@@ -164,7 +166,7 @@ export default function Home() {
 
       return simulationData;
     };
-  }, [yearlyRates]);
+  }, [yearlyRates, simulationCount]);
 
   // Fetch patients and cost rates from database
   useEffect(() => {
@@ -356,7 +358,30 @@ export default function Home() {
                   </p>
                 </div>
               </div>
-              <div className="flex gap-3">
+              <div className="flex gap-3 items-center">
+                {isSimulation && (
+                  <div className="flex items-center gap-2 bg-blue-50 px-3 py-2 rounded-md">
+                    <label
+                      htmlFor="simCount"
+                      className="text-sm font-medium text-gray-700"
+                    >
+                      Treatments:
+                    </label>
+                    <input
+                      id="simCount"
+                      type="number"
+                      min="1"
+                      max="10000"
+                      value={simulationCount}
+                      onChange={(e) =>
+                        setSimulationCount(
+                          Math.max(1, parseInt(e.target.value) || 1)
+                        )
+                      }
+                      className="w-24 px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                    />
+                  </div>
+                )}
                 <button
                   onClick={() => setIsSimulation(!isSimulation)}
                   className={`px-4 py-2 rounded-md font-medium ${
@@ -414,7 +439,30 @@ export default function Home() {
                 </p>
               </div>
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-3 items-center">
+              {isSimulation && (
+                <div className="flex items-center gap-2 bg-blue-50 px-3 py-2 rounded-md">
+                  <label
+                    htmlFor="simCountMain"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Treatments:
+                  </label>
+                  <input
+                    id="simCountMain"
+                    type="number"
+                    min="1"
+                    max="10000"
+                    value={simulationCount}
+                    onChange={(e) =>
+                      setSimulationCount(
+                        Math.max(1, parseInt(e.target.value) || 1)
+                      )
+                    }
+                    className="w-24 px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                  />
+                </div>
+              )}
               <button
                 onClick={() => setIsSimulation(!isSimulation)}
                 className={`px-4 py-2 rounded-md font-medium ${
