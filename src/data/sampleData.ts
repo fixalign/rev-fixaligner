@@ -6,6 +6,8 @@ export const fixedCosts: FixedCosts = {
   salaries: 5000,
   internet: 100,
   totalFixedCost: 7400,
+  legal: 1500,
+  accountant_and_audit: 1200,
 };
 
 export const sampleTreatments: TreatmentRecord[] = [
