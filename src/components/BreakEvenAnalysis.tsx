@@ -76,13 +76,10 @@ export default function BreakEvenAnalysis({ summary }: BreakEvenAnalysisProps) {
             <div className="flex justify-between items-center">
               <span className="text-gray-600">Variable Costs</span>
               <span className="font-semibold text-red-600">
-                -{formatCurrency(summary.totalVariableCosts)}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Direct Costs</span>
-              <span className="font-semibold text-red-600">
-                -{formatCurrency(summary.totalDirectCosts)}
+                -
+                {formatCurrency(
+                  summary.totalVariableCosts + summary.totalDirectCosts
+                )}
               </span>
             </div>
             <div className="flex justify-between items-center">
@@ -102,7 +99,23 @@ export default function BreakEvenAnalysis({ summary }: BreakEvenAnalysisProps) {
               </span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="font-semibold text-gray-900">Net Profit</span>
+              <span className="font-semibold text-gray-900">Gross Margin</span>
+              <span
+                className={`font-bold ${
+                  summary.grossProfit / summary.totalRevenue >= 0
+                    ? "text-green-600"
+                    : "text-red-600"
+                }`}
+              >
+                {formatPercentage(
+                  (summary.grossProfit / summary.totalRevenue) * 100
+                )}
+              </span>
+            </div>
+            <div className="flex justify-between items-center pt-3 border-t">
+              <span className="font-semibold text-gray-900">
+                Operational Profit
+              </span>
               <span
                 className={`font-bold text-lg ${
                   summary.netProfit >= 0 ? "text-green-600" : "text-red-600"
@@ -112,7 +125,9 @@ export default function BreakEvenAnalysis({ summary }: BreakEvenAnalysisProps) {
               </span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="font-semibold text-gray-900">Profit Margin</span>
+              <span className="font-semibold text-gray-900">
+                Operational Margin
+              </span>
               <span
                 className={`font-bold ${
                   summary.profitMargin >= 0 ? "text-green-600" : "text-red-600"

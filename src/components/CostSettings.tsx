@@ -63,7 +63,9 @@ export default function CostSettings({
       utilities: 300,
       salaries: 5000,
       internet: 100,
-      totalFixedCost: 7400,
+      legal: 500,
+      accountant_and_audit: 1000,
+      totalFixedCost: 8900,
     },
   };
 
@@ -94,7 +96,9 @@ export default function CostSettings({
           utilities: 300,
           salaries: 5000,
           internet: 100,
-          totalFixedCost: 7400,
+          legal: 500,
+          accountant_and_audit: 1000,
+          totalFixedCost: 8900,
         },
       };
     }
@@ -105,7 +109,9 @@ export default function CostSettings({
         updatedFixed.rent +
         updatedFixed.utilities +
         updatedFixed.salaries +
-        updatedFixed.internet;
+        updatedFixed.internet +
+        updatedFixed.legal +
+        updatedFixed.accountant_and_audit;
       newYearlyRates[year] = { ...newYearlyRates[year], fixed: updatedFixed };
     } else {
       newYearlyRates[year] = {
@@ -298,6 +304,54 @@ export default function CostSettings({
                   />
                 </div>
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Legal
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-2.5 text-gray-500">
+                    $
+                  </span>
+                  <input
+                    type="number"
+                    value={currentRates.fixed.legal}
+                    onChange={(e) =>
+                      updateYearRates(
+                        activeEditingYear,
+                        "fixed",
+                        "legal",
+                        parseFloat(e.target.value) || 0
+                      )
+                    }
+                    className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Accountant & Audit
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-2.5 text-gray-500">
+                    $
+                  </span>
+                  <input
+                    type="number"
+                    value={currentRates.fixed.accountant_and_audit}
+                    onChange={(e) =>
+                      updateYearRates(
+                        activeEditingYear,
+                        "fixed",
+                        "accountant_and_audit",
+                        parseFloat(e.target.value) || 0
+                      )
+                    }
+                    className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
+                  />
+                </div>
+              </div>
             </div>
             <div className="mt-4 p-3 bg-blue-50 rounded-md">
               <div className="flex justify-between items-center">
@@ -441,15 +495,7 @@ export default function CostSettings({
                   />
                 </div>
               </div>
-            </div>
-          </div>
 
-          {/* Direct Costs Rates */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Direct Cost Rates - {activeEditingYear}
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Design Rate (per design)

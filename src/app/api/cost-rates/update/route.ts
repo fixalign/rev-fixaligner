@@ -117,15 +117,31 @@ export async function PUT(request: NextRequest) {
       if (Array.isArray(existingFixed) && existingFixed.length > 0) {
         await connection.query(
           `UPDATE fixed_costs 
-           SET rent = ?, utilities = ?, salaries = ?, internet = ?, updated_at = NOW()
+           SET rent = ?, utilities = ?, salaries = ?, internet = ?, legal = ?, accountant_and_audit = ?, updated_at = NOW()
            WHERE year_id = ?`,
-          [fixed.rent, fixed.utilities, fixed.salaries, fixed.internet, yearId]
+          [
+            fixed.rent,
+            fixed.utilities,
+            fixed.salaries,
+            fixed.internet,
+            fixed.legal,
+            fixed.accountant_and_audit,
+            yearId,
+          ]
         );
       } else {
         await connection.query(
-          `INSERT INTO fixed_costs (year_id, rent, utilities, salaries, internet, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, NOW(), NOW())`,
-          [yearId, fixed.rent, fixed.utilities, fixed.salaries, fixed.internet]
+          `INSERT INTO fixed_costs (year_id, rent, utilities, salaries, internet, legal, accountant_and_audit, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+          [
+            yearId,
+            fixed.rent,
+            fixed.utilities,
+            fixed.salaries,
+            fixed.internet,
+            fixed.legal,
+            fixed.accountant_and_audit,
+          ]
         );
       }
 

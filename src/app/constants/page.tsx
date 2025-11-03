@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { YearlyRates } from "@/components/CostSettings";
 
 export default function ConstantsPage() {
@@ -131,7 +132,9 @@ export default function ConstantsPage() {
         utilities: 800,
         salaries: 15000,
         internet: 200,
-        totalFixedCost: 21000,
+        legal: 500,
+        accountant_and_audit: 1000,
+        totalFixedCost: 22500,
       },
     };
 
@@ -172,7 +175,9 @@ export default function ConstantsPage() {
           utilities: 800,
           salaries: 15000,
           internet: 200,
-          totalFixedCost: 21000,
+          legal: 500,
+          accountant_and_audit: 1000,
+          totalFixedCost: 22500,
         },
       };
 
@@ -190,7 +195,9 @@ export default function ConstantsPage() {
           updated.fixed.rent +
           updated.fixed.utilities +
           updated.fixed.salaries +
-          updated.fixed.internet;
+          updated.fixed.internet +
+          updated.fixed.legal +
+          updated.fixed.accountant_and_audit;
       }
 
       return {
@@ -215,13 +222,16 @@ export default function ConstantsPage() {
       <header className="bg-white shadow">
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Cost Constants Management
-              </h1>
-              <p className="mt-1 text-sm text-gray-600">
-                Manage yearly cost rates for calculations
-              </p>
+            <div className="flex items-center gap-4">
+              <Image src="/logo.svg" alt="Logo" width={48} height={48} />
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  Cost Constants Management
+                </h1>
+                <p className="mt-1 text-sm text-gray-600">
+                  Manage yearly cost rates for calculations
+                </p>
+              </div>
             </div>
             <Link
               href="/"
@@ -639,6 +649,52 @@ export default function ConstantsPage() {
                           updateRate(
                             "fixed",
                             "internet",
+                            parseFloat(e.target.value) || 0
+                          )
+                        }
+                        className="w-full pl-8 pr-3 py-3 border-2 border-gray-300 rounded-md text-gray-900 bg-white font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Legal
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-3 text-gray-500">
+                        $
+                      </span>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={currentRates.fixed.legal}
+                        onChange={(e) =>
+                          updateRate(
+                            "fixed",
+                            "legal",
+                            parseFloat(e.target.value) || 0
+                          )
+                        }
+                        className="w-full pl-8 pr-3 py-3 border-2 border-gray-300 rounded-md text-gray-900 bg-white font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Accountant & Audit
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-3 text-gray-500">
+                        $
+                      </span>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={currentRates.fixed.accountant_and_audit}
+                        onChange={(e) =>
+                          updateRate(
+                            "fixed",
+                            "accountant_and_audit",
                             parseFloat(e.target.value) || 0
                           )
                         }

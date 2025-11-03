@@ -30,6 +30,8 @@ interface FixedCost extends RowDataPacket {
   utilities: number;
   salaries: number;
   internet: number;
+  legal: number;
+  accountant_and_audit: number;
 }
 
 export async function GET() {
@@ -85,11 +87,15 @@ export async function GET() {
             utilities: Number(fixed.utilities),
             salaries: Number(fixed.salaries),
             internet: Number(fixed.internet),
+            legal: Number(fixed.legal),
+            accountant_and_audit: Number(fixed.accountant_and_audit),
             totalFixedCost:
               Number(fixed.rent) +
               Number(fixed.utilities) +
               Number(fixed.salaries) +
-              Number(fixed.internet),
+              Number(fixed.internet) +
+              Number(fixed.legal) +
+              Number(fixed.accountant_and_audit),
           },
         };
       }

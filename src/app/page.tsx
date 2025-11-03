@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import FinancialOverview from "@/components/FinancialOverview";
 import BreakEvenAnalysis from "@/components/BreakEvenAnalysis";
 import PatientTable from "@/components/PatientTable";
@@ -50,7 +51,9 @@ export default function Home() {
           utilities: 800,
           salaries: 15000,
           internet: 200,
-          totalFixedCost: 21000,
+          legal: 500,
+          accountant_and_audit: 1000,
+          totalFixedCost: 22500,
         },
       };
 
@@ -224,7 +227,9 @@ export default function Home() {
       utilities: 800,
       salaries: 15000,
       internet: 200,
-      totalFixedCost: 21000,
+      legal: 500,
+      accountant_and_audit: 1000,
+      totalFixedCost: 22500,
     };
 
     if (selectedYear === "all") {
@@ -244,12 +249,28 @@ export default function Home() {
       const avgInternet =
         years.reduce((sum, y) => sum + yearlyRates[y].fixed.internet, 0) /
         years.length;
+      const avgLegal =
+        years.reduce((sum, y) => sum + yearlyRates[y].fixed.legal, 0) /
+        years.length;
+      const avgAccountant =
+        years.reduce(
+          (sum, y) => sum + yearlyRates[y].fixed.accountant_and_audit,
+          0
+        ) / years.length;
       return {
         rent: avgRent,
         utilities: avgUtilities,
         salaries: avgSalaries,
         internet: avgInternet,
-        totalFixedCost: avgRent + avgUtilities + avgSalaries + avgInternet,
+        legal: avgLegal,
+        accountant_and_audit: avgAccountant,
+        totalFixedCost:
+          avgRent +
+          avgUtilities +
+          avgSalaries +
+          avgInternet +
+          avgLegal +
+          avgAccountant,
       };
     }
     return yearlyRates[selectedYear]?.fixed || defaultFixed;
@@ -269,6 +290,13 @@ export default function Home() {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="text-center">
+          <Image
+            src="/logo.svg"
+            alt="Logo"
+            width={80}
+            height={80}
+            className="mx-auto mb-6"
+          />
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading dashboard data...</p>
         </div>
@@ -281,6 +309,13 @@ export default function Home() {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="bg-white rounded-lg shadow-lg p-8 max-w-md">
+          <Image
+            src="/logo.svg"
+            alt="Logo"
+            width={64}
+            height={64}
+            className="mx-auto mb-4"
+          />
           <div className="text-red-600 text-5xl mb-4">⚠️</div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
             Error Loading Data
@@ -304,19 +339,22 @@ export default function Home() {
         <header className="bg-white shadow">
           <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">
-                  Treatment Costs & Profitability Dashboard
-                  {isSimulation && (
-                    <span className="ml-3 text-lg text-blue-600">
-                      (Simulation Mode)
-                    </span>
-                  )}
-                </h1>
-                <p className="mt-1 text-sm text-gray-600">
-                  Track patient treatments, costs, payments, and financial
-                  performance
-                </p>
+              <div className="flex items-center gap-4">
+                <Image src="/logo.svg" alt="Logo" width={48} height={48} />
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900">
+                    Treatment Costs & Profitability Dashboard
+                    {isSimulation && (
+                      <span className="ml-3 text-lg text-blue-600">
+                        (Simulation Mode)
+                      </span>
+                    )}
+                  </h1>
+                  <p className="mt-1 text-sm text-gray-600">
+                    Track patient treatments, costs, payments, and financial
+                    performance
+                  </p>
+                </div>
               </div>
               <div className="flex gap-3">
                 <button
@@ -359,19 +397,22 @@ export default function Home() {
       <header className="bg-white shadow">
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Treatment Costs & Profitability Dashboard
-                {isSimulation && (
-                  <span className="ml-3 text-lg text-blue-600">
-                    (Simulation Mode)
-                  </span>
-                )}
-              </h1>
-              <p className="mt-1 text-sm text-gray-600">
-                Track patient treatments, costs, payments, and financial
-                performance
-              </p>
+            <div className="flex items-center gap-4">
+              <Image src="/logo.svg" alt="Logo" width={48} height={48} />
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  Treatment Costs & Profitability Dashboard
+                  {isSimulation && (
+                    <span className="ml-3 text-lg text-blue-600">
+                      (Simulation Mode)
+                    </span>
+                  )}
+                </h1>
+                <p className="mt-1 text-sm text-gray-600">
+                  Track patient treatments, costs, payments, and financial
+                  performance
+                </p>
+              </div>
             </div>
             <div className="flex gap-3">
               <button
@@ -449,6 +490,18 @@ export default function Home() {
                     <span className="text-gray-600">Internet</span>
                     <span className="font-medium text-gray-900">
                       ${currentFixedCosts.internet.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Legal</span>
+                    <span className="font-medium text-gray-900">
+                      ${currentFixedCosts.legal.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Accountant & Audit</span>
+                    <span className="font-medium text-gray-900">
+                      ${currentFixedCosts.accountant_and_audit.toLocaleString()}
                     </span>
                   </div>
                   <div className="flex justify-between pt-3 border-t-2 border-gray-300">

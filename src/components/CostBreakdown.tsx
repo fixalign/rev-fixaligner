@@ -150,13 +150,46 @@ export default function CostBreakdown({ treatment }: CostBreakdownProps) {
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="font-semibold text-gray-900">Total Costs</span>
+              <span className="font-semibold text-gray-900">
+                Variable Costs
+              </span>
               <span className="font-bold text-red-600">
-                {formatCurrency(treatment.totalCost)}
+                -
+                {formatCurrency(
+                  treatment.variableCosts.totalVariableCost +
+                    treatment.directCosts.totalDirectCost
+                )}
+              </span>
+            </div>
+            <div className="flex justify-between pt-2 border-t">
+              <span className="font-bold text-gray-900">Gross Profit</span>
+              <span
+                className={`font-bold ${
+                  treatment.price -
+                    (treatment.variableCosts.totalVariableCost +
+                      treatment.directCosts.totalDirectCost) >=
+                  0
+                    ? "text-green-600"
+                    : "text-red-600"
+                }`}
+              >
+                {formatCurrency(
+                  treatment.price -
+                    (treatment.variableCosts.totalVariableCost +
+                      treatment.directCosts.totalDirectCost)
+                )}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="font-semibold text-gray-900">Fixed Costs</span>
+              <span className="font-bold text-red-600">
+                -{formatCurrency(treatment.allocatedFixedCost || 0)}
               </span>
             </div>
             <div className="flex justify-between text-lg pt-2 border-t">
-              <span className="font-bold text-gray-900">Profit</span>
+              <span className="font-bold text-gray-900">
+                Operational Profit
+              </span>
               <span
                 className={`font-bold ${
                   treatment.profit >= 0 ? "text-green-600" : "text-red-600"

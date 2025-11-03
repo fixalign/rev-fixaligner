@@ -45,7 +45,10 @@ export default function PatientTable({
                 Profit
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Margin
+                Gross Margin
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Operational Margin
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Payment Due
@@ -97,6 +100,25 @@ export default function PatientTable({
                   }`}
                 >
                   {formatCurrency(treatment.profit)}
+                </td>
+                <td
+                  className={`px-6 py-4 whitespace-nowrap text-sm ${
+                    (treatment.price -
+                      (treatment.variableCosts.totalVariableCost +
+                        treatment.directCosts.totalDirectCost)) /
+                      treatment.price >=
+                    0
+                      ? "text-gray-900"
+                      : "text-red-600"
+                  }`}
+                >
+                  {formatPercentage(
+                    ((treatment.price -
+                      (treatment.variableCosts.totalVariableCost +
+                        treatment.directCosts.totalDirectCost)) /
+                      treatment.price) *
+                      100
+                  )}
                 </td>
                 <td
                   className={`px-6 py-4 whitespace-nowrap text-sm ${

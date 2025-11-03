@@ -129,33 +129,38 @@ export function calculateFinancialSummary(
 
 export function calculateDashboardStats(
   records: TreatmentRecord[],
-  fixedCosts: FixedCosts
+  _fixedCosts: FixedCosts
 ): DashboardStats {
   const totalPatients = records.length;
-  const activePatients = records.filter((r) => r.status === "active").length;
-  const completedPatients = records.filter(
-    (r) => r.status === "completed"
-  ).length;
+
+  // More flexible status matching - convert to lowercase and check for partial matches
+  const activePatients = records.filter((r) => {
+    const status = (r.status || "").toLowerCase();
+    return (
+      status.includes("active") ||
+      status.includes("ongoing") ||
+      status.includes("in progress")
+    );
+  }).length;
+
+  const completedPatients = records.filter((r) => {
+    const status = (r.status || "").toLowerCase();
+    return (
+      status.includes("completed") ||
+      status.includes("complete") ||
+      status.includes("finished")
+    );
+  }).length;
+
   const totalRevenue = records.reduce((sum, r) => sum + r.price, 0);
 
-  // Calculate total fixed costs based on years and months passed
-  const currentDate = new Date();
-  const currentYear = currentDate.getFullYear();
-  const currentMonth = currentDate.getMonth() + 1; // 1-12
-
-  // Get unique years from treatments
-  const yearsInData = new Set(
-    records.filter((r) => r.treatmentYear != null).map((r) => r.treatmentYear!)
-  );
-
-  // Calculate total fixed costs for all months passed
-  let totalFixedCostsAccumulated = 0;
-  yearsInData.forEach((year) => {
-    const monthsForYear = year === currentYear ? currentMonth : 12;
-    totalFixedCostsAccumulated += fixedCosts.totalFixedCost * monthsForYear;
-  });
-
   const totalCosts = records.reduce((sum, r) => sum + r.totalCost, 0);
+  const totalVariableCosts = records.reduce(
+    (sum, r) =>
+      sum + r.variableCosts.totalVariableCost + r.directCosts.totalDirectCost,
+    0
+  );
+  const grossProfit = totalRevenue - totalVariableCosts;
   const netProfit = totalRevenue - totalCosts;
   const profitMargin = calculateProfitMargin(netProfit, totalRevenue);
   const averageRevenuePerPatient =
@@ -173,6 +178,7 @@ export function calculateDashboardStats(
     completedPatients,
     totalRevenue,
     totalCosts,
+    grossProfit,
     netProfit,
     profitMargin,
     averageRevenuePerPatient,

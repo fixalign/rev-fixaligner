@@ -47,7 +47,7 @@ export default function FinancialOverview({ stats }: FinancialOverviewProps) {
         <h2 className="text-2xl font-bold text-gray-900 mb-4">
           Financial Overview
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
           <StatsCard
             title="Total Revenue"
             value={formatCurrency(stats.totalRevenue)}
@@ -65,7 +65,13 @@ export default function FinancialOverview({ stats }: FinancialOverviewProps) {
             trend="neutral"
           />
           <StatsCard
-            title="Net Profit"
+            title="Gross Profit"
+            value={formatCurrency(stats.grossProfit)}
+            subtitle={`After variable costs`}
+            trend={stats.grossProfit >= 0 ? "positive" : "negative"}
+          />
+          <StatsCard
+            title="Operational Profit"
             value={formatCurrency(stats.netProfit)}
             subtitle={`Margin: ${formatPercentage(stats.profitMargin)}`}
             trend={profitTrend}

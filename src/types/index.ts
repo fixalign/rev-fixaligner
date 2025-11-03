@@ -77,6 +77,8 @@ export interface FixedCosts {
   utilities: number;
   salaries: number;
   internet: number;
+  legal: number;
+  accountant_and_audit: number;
   totalFixedCost: number;
 }
 
@@ -114,6 +116,7 @@ export interface DashboardStats {
   completedPatients: number;
   totalRevenue: number;
   totalCosts: number;
+  grossProfit: number;
   netProfit: number;
   profitMargin: number;
   averageRevenuePerPatient: number;
