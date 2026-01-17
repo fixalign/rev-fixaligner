@@ -22,6 +22,7 @@ interface DirectCostRate extends RowDataPacket {
   alcohol_rate: number;
   tissues_rate: number;
   tools_rate: number;
+  marketing_fee_rate: number;
 }
 
 interface FixedCost extends RowDataPacket {
@@ -32,6 +33,8 @@ interface FixedCost extends RowDataPacket {
   internet: number;
   legal: number;
   accountant_and_audit: number;
+  cmo: number;
+  monthly_capacity_hours: number;
 }
 
 export async function GET() {
@@ -67,38 +70,46 @@ export async function GET() {
       const direct = directRates.find((d) => d.year_id === yearRow.id);
       const fixed = fixedCosts.find((f) => f.year_id === yearRow.id);
 
-      if (variable && direct && fixed) {
-        yearlyRates[yearRow.year] = {
-          variable: {
-            sheetRate: Number(variable.sheet_rate),
-            caseRate: Number(variable.case_rate),
-            resinRate: Number(variable.resin_rate),
-            bagRate: Number(variable.bag_rate),
-            boxRate: Number(variable.box_rate),
-          },
-          direct: {
-            designRate: Number(direct.design_rate),
-            alcoholRate: Number(direct.alcohol_rate),
-            tissuesRate: Number(direct.tissues_rate),
-            toolsRate: Number(direct.tools_rate),
-          },
-          fixed: {
-            rent: Number(fixed.rent),
-            utilities: Number(fixed.utilities),
-            salaries: Number(fixed.salaries),
-            internet: Number(fixed.internet),
-            legal: Number(fixed.legal),
-            accountant_and_audit: Number(fixed.accountant_and_audit),
-            totalFixedCost:
-              Number(fixed.rent) +
-              Number(fixed.utilities) +
-              Number(fixed.salaries) +
-              Number(fixed.internet) +
-              Number(fixed.legal) +
-              Number(fixed.accountant_and_audit),
-          },
-        };
-      }
+      yearlyRates[yearRow.year] = {
+        variable: {
+          sheetRate: Number(variable?.sheet_rate || 8),
+          caseRate: Number(variable?.case_rate || 45),
+          resinRate: Number(variable?.resin_rate || 120),
+          bagRate: Number(variable?.bag_rate || 0.5),
+          boxRate: Number(variable?.box_rate || 15),
+        },
+        direct: {
+          designRate: Number(direct?.design_rate || 150),
+          alcoholRate: Number(direct?.alcohol_rate || 10),
+          tissuesRate: Number(direct?.tissues_rate || 5),
+          toolsRate: Number(direct?.tools_rate || 20),
+          marketingFeeRate: Number(
+            direct?.marketing_fee_rate != null ? direct.marketing_fee_rate : 7
+          ),
+        },
+        fixed: {
+          rent: Number(fixed?.rent || 5000),
+          utilities: Number(fixed?.utilities || 800),
+          salaries: Number(fixed?.salaries || 15000),
+          internet: Number(fixed?.internet || 200),
+          legal: Number(fixed?.legal || 500),
+          accountant_and_audit: Number(fixed?.accountant_and_audit || 1000),
+          cmo: Number(fixed?.cmo || 5000),
+          monthlyCapacityHours: Number(
+            fixed?.monthly_capacity_hours != null
+              ? fixed.monthly_capacity_hours
+              : 192
+          ),
+          totalFixedCost:
+            Number(fixed?.rent || 5000) +
+            Number(fixed?.utilities || 800) +
+            Number(fixed?.salaries || 15000) +
+            Number(fixed?.internet || 200) +
+            Number(fixed?.legal || 500) +
+            Number(fixed?.accountant_and_audit || 1000) +
+            Number(fixed?.cmo || 5000),
+        },
+      };
     });
 
     return NextResponse.json({

@@ -38,13 +38,12 @@ export function calculateDirectCosts(record: Partial<TreatmentRecord>) {
 
 export function calculateTotalCost(
   record: TreatmentRecord,
-  fixedCosts: FixedCosts,
-  totalPatients: number
+  fixedCosts: FixedCosts
 ) {
   const variableCost = record.variableCosts.totalVariableCost;
   const directCost = record.directCosts.totalDirectCost;
-  const allocatedFixedCost =
-    totalPatients > 0 ? fixedCosts.totalFixedCost / totalPatients : 0;
+  const estimatedHours = record.numberOfSteps * 0.15; // 9 minutes per step
+  const allocatedFixedCost = (fixedCosts.totalFixedCost * estimatedHours) / (fixedCosts.monthlyCapacityHours || 192);
 
   return variableCost + directCost + allocatedFixedCost;
 }
@@ -59,7 +58,8 @@ export function calculateProfitMargin(profit: number, revenue: number) {
 
 export function calculateFinancialSummary(
   records: TreatmentRecord[],
-  fixedCosts: FixedCosts
+  yearlyRates: any,
+  selectedYear: string | number
 ): FinancialSummary {
   const totalRevenue = records.reduce((sum, r) => sum + r.price, 0);
   const totalVariableCosts = records.reduce(
@@ -71,69 +71,101 @@ export function calculateFinancialSummary(
     0
   );
 
-  // Calculate total fixed costs based on years and months passed
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
-  const currentMonth = currentDate.getMonth() + 1; // 1-12
+  const currentMonth = currentDate.getMonth() + 1;
 
-  // Get unique years from treatments
-  const yearsInData = new Set(
-    records.filter((r) => r.treatmentYear != null).map((r) => r.treatmentYear!)
-  );
-
-  // Calculate total fixed costs for all months passed
   let totalFixedCostsAccumulated = 0;
-  yearsInData.forEach((year) => {
-    const monthsForYear = year === currentYear ? currentMonth : 12;
-    totalFixedCostsAccumulated += fixedCosts.totalFixedCost * monthsForYear;
-  });
+  let monthsCounted = 0;
+
+  const getYearlyData = (year: string | number) => {
+    const data = yearlyRates[year] || yearlyRates[year.toString()];
+    if (data) return data;
+
+    // Fallback to sensible defaults ONLY if year data is missing
+    return {
+      variable: { sheetRate: 8, caseRate: 45, resinRate: 120, bagRate: 0.5, boxRate: 15 },
+      direct: { designRate: 150, alcoholRate: 10, tissuesRate: 5, toolsRate: 20, marketingFeeRate: 7 },
+      fixed: { rent: 5000, utilities: 800, salaries: 15000, internet: 200, legal: 500, accountant_and_audit: 1000, cmo: 5000, monthlyCapacityHours: 192, totalFixedCost: 27500 }
+    };
+  };
+
+  if (selectedYear === "all") {
+    const yearsSet = new Set<number>();
+    Object.keys(yearlyRates).forEach(y => yearsSet.add(parseInt(y)));
+    records.forEach(r => r.treatmentYear && yearsSet.add(r.treatmentYear));
+    if (yearsSet.size === 0) yearsSet.add(currentYear);
+
+    yearsSet.forEach(year => {
+      if (year <= currentYear) {
+        const monthsInYear = year === currentYear ? currentMonth : 12;
+        const rates = getYearlyData(year);
+        totalFixedCostsAccumulated += (rates?.fixed?.totalFixedCost || 27500) * monthsInYear;
+        monthsCounted += monthsInYear;
+      }
+    });
+  } else {
+    const year = typeof selectedYear === "string" ? parseInt(selectedYear) : (selectedYear || currentYear);
+    const monthsInYear = year === currentYear ? currentMonth : 12;
+    const rates = getYearlyData(year);
+    totalFixedCostsAccumulated = (rates?.fixed?.totalFixedCost || 27500) * monthsInYear;
+    monthsCounted = monthsInYear;
+  }
 
   const totalFixedCosts = totalFixedCostsAccumulated;
-  const totalCosts = totalVariableCosts + totalDirectCosts + totalFixedCosts;
-  const grossProfit = totalRevenue - (totalVariableCosts + totalDirectCosts);
-  const netProfit = totalRevenue - totalCosts;
+  const totalCosts = (totalVariableCosts || 0) + (totalDirectCosts || 0) + (totalFixedCosts || 0);
+  const grossProfit = (totalRevenue || 0) - ((totalVariableCosts || 0) + (totalDirectCosts || 0));
+  const netProfit = (totalRevenue || 0) - totalCosts;
   const profitMargin = calculateProfitMargin(netProfit, totalRevenue);
 
-  // Break-even point: Fixed Costs / (Revenue per unit - Variable Cost per unit)
-  const avgRevenuePerPatient =
-    records.length > 0 ? totalRevenue / records.length : 0;
-  const avgVariableCostPerPatient =
-    records.length > 0
-      ? (totalVariableCosts + totalDirectCosts) / records.length
-      : 0;
+  const avgRevenuePerPatient = records.length > 0 ? (totalRevenue || 0) / records.length : 0;
+  const avgVariableCostPerPatient = records.length > 0
+    ? ((totalVariableCosts || 0) + (totalDirectCosts || 0)) / records.length
+    : 0;
   const contributionMargin = avgRevenuePerPatient - avgVariableCostPerPatient;
-  const breakEvenPoint =
-    contributionMargin > 0
-      ? Math.ceil(totalFixedCosts / contributionMargin)
-      : 0;
 
-  const year2024Count = records.filter((r) => r.treatmentYear === 2024).length;
-  const year2025Count = records.filter((r) => r.treatmentYear === 2025).length;
+  const currentYearRates = getYearlyData(selectedYear === "all" ? currentYear : selectedYear);
+  const monthlyFixed = currentYearRates?.fixed?.totalFixedCost || 27500;
+
+  const monthlyBreakEven = contributionMargin > 0
+    ? Math.ceil(monthlyFixed / contributionMargin)
+    : 0;
+
+  const breakEvenPoint = contributionMargin > 0
+    ? Math.ceil(totalFixedCosts / contributionMargin)
+    : 0;
+
+  const treatmentsPerYear: Record<string, number> = {};
+  records.forEach((r) => {
+    const y = r.treatmentYear || currentYear;
+    const yearKey = `year${y}`;
+    treatmentsPerYear[yearKey] = (treatmentsPerYear[yearKey] || 0) + 1;
+  });
 
   return {
-    totalRevenue,
-    totalVariableCosts,
-    totalDirectCosts,
-    totalFixedCosts,
-    totalCosts,
-    grossProfit,
-    netProfit,
-    profitMargin,
-    breakEvenPoint,
-    treatmentsPerYear: {
-      year2024: year2024Count,
-      year2025: year2025Count,
-    },
+    totalRevenue: totalRevenue || 0,
+    totalPatients: records.length,
+    totalVariableCosts: totalVariableCosts || 0,
+    totalDirectCosts: totalDirectCosts || 0,
+    totalFixedCosts: totalFixedCosts || 0,
+    totalCosts: totalCosts || 0,
+    grossProfit: grossProfit || 0,
+    netProfit: netProfit || 0,
+    profitMargin: profitMargin || 0,
+    breakEvenPoint: breakEvenPoint || 0,
+    monthlyBreakEven: monthlyBreakEven || 0,
+    monthsCounted,
+    treatmentsPerYear,
   };
 }
 
 export function calculateDashboardStats(
   records: TreatmentRecord[],
-  _fixedCosts: FixedCosts
+  yearlyRates: any,
+  selectedYear: string | number
 ): DashboardStats {
   const totalPatients = records.length;
 
-  // More flexible status matching - convert to lowercase and check for partial matches
   const activePatients = records.filter((r) => {
     const status = (r.status || "").toLowerCase();
     return (
@@ -152,23 +184,28 @@ export function calculateDashboardStats(
     );
   }).length;
 
-  const totalRevenue = records.reduce((sum, r) => sum + r.price, 0);
+  const totalRevenue = records.reduce((sum, r) => sum + (r.price || 0), 0);
 
-  const totalCosts = records.reduce((sum, r) => sum + r.totalCost, 0);
-  const totalVariableCosts = records.reduce(
+  const totalPatientCosts = records.reduce((sum, r) => sum + (r.totalCost || 0), 0);
+  const totalVariableDirectCosts = records.reduce(
     (sum, r) =>
-      sum + r.variableCosts.totalVariableCost + r.directCosts.totalDirectCost,
+      sum + (r.variableCosts?.totalVariableCost || 0) + (r.directCosts?.totalDirectCost || 0),
     0
   );
-  const grossProfit = totalRevenue - totalVariableCosts;
-  const netProfit = totalRevenue - totalCosts;
-  const profitMargin = calculateProfitMargin(netProfit, totalRevenue);
+
+  const grossProfit = totalRevenue - totalVariableDirectCosts;
+  const operationalProfit = totalRevenue - totalPatientCosts;
+
+  const summary = calculateFinancialSummary(records, yearlyRates, selectedYear);
+  const netProfit = summary.netProfit;
+  const profitMargin = summary.profitMargin;
+
   const averageRevenuePerPatient =
     totalPatients > 0 ? totalRevenue / totalPatients : 0;
   const averageCostPerPatient =
-    totalPatients > 0 ? totalCosts / totalPatients : 0;
+    totalPatients > 0 ? totalPatientCosts / totalPatients : 0;
   const paymentsRemaining = records.reduce(
-    (sum, r) => sum + r.paymentRemaining,
+    (sum, r) => sum + (r.paymentRemaining || 0),
     0
   );
 
@@ -177,23 +214,32 @@ export function calculateDashboardStats(
     activePatients,
     completedPatients,
     totalRevenue,
-    totalCosts,
+    totalCosts: summary.totalCosts,
     grossProfit,
+    operationalProfit,
     netProfit,
     profitMargin,
     averageRevenuePerPatient,
     averageCostPerPatient,
     paymentsRemaining,
+    monthsCounted: summary.monthsCounted,
   };
 }
 
-export function formatCurrency(amount: number): string {
+export function formatCurrency(amount: number | string | null | undefined): string {
+  const num = typeof amount === "string" ? parseFloat(amount) : amount;
+  if (num === null || num === undefined || isNaN(num as number)) {
+    return "$0.00";
+  }
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
-  }).format(amount);
+  }).format(num as number);
 }
 
-export function formatPercentage(value: number): string {
+export function formatPercentage(value: number | null | undefined): string {
+  if (value === null || value === undefined || isNaN(value)) {
+    return "0.00%";
+  }
   return `${value.toFixed(2)}%`;
 }

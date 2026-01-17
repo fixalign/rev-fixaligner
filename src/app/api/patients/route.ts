@@ -13,6 +13,7 @@ interface DbPatient extends RowDataPacket {
   number_of_steps: number;
   treatment_started: string;
   treatment_ended: string | null;
+  timer_delivery_ended_at: string | null;
   status: string;
   price: number;
   remaining_amount: number;
@@ -50,6 +51,7 @@ interface DirectCostRate extends RowDataPacket {
   alcohol_rate: number;
   tissues_rate: number;
   tools_rate: number;
+  marketing_fee_rate: number;
 }
 
 interface FixedCost extends RowDataPacket {
@@ -58,13 +60,21 @@ interface FixedCost extends RowDataPacket {
   utilities: number;
   salaries: number;
   internet: number;
+  legal: number;
+  accountant_and_audit: number;
+  cmo: number;
+  monthly_capacity_hours: number;
 }
 
 export async function GET() {
   try {
-    // Fetch patients
+    // Fetch patients with timer_delivery_ended_at
     const [patients] = await pool.query<DbPatient[]>(
-      "SELECT * FROM patient_treatment_view ORDER BY treatment_started DESC"
+      `SELECT v.*, p.timer_delivery_ended_at 
+       FROM patient_treatment_view v 
+       LEFT JOIN patients p ON v.id = p.id 
+       WHERE p.timer_delivery_ended_at IS NOT NULL
+       ORDER BY p.timer_delivery_ended_at DESC`
     );
 
     // Fetch all years and rates
@@ -87,26 +97,51 @@ export async function GET() {
     const fixedCostsMap = new Map(fixedCosts.map((r) => [r.year_id, r]));
     const yearIdMap = new Map(years.map((y) => [y.year, y.id]));
 
-    // Count patients per year for fixed cost allocation
-    const patientCountByYear = new Map<number, number>();
-    patients.forEach((patient) => {
-      if (patient.treatment_year != null) {
-        const count = patientCountByYear.get(patient.treatment_year) || 0;
-        patientCountByYear.set(patient.treatment_year, count + 1);
+    // First pass: Prepare yearMonth keys and count treatments per month
+    const patientCountByYearMonth = new Map<string, number>();
+    const patientsWithKeys = patients.map((patient) => {
+      // Group by year and month using format 'YYYY-M' strictly based on handover date
+      // We know timer_delivery_ended_at is present due to SQL filter
+      const dateToUse = new Date(patient.timer_delivery_ended_at!);
+
+      const year = dateToUse.getFullYear();
+      const month = dateToUse.getMonth(); // 0-11
+      const yearMonthKey = `${year}-${month}`;
+
+      const count = (patientCountByYearMonth.get(yearMonthKey) || 0) + 1;
+      patientCountByYearMonth.set(yearMonthKey, count);
+
+      // DEBUG LOG
+      if (Math.random() < 0.1) {
+        console.log(`Patient ${patient.id} (${patient.patient_name}):`, {
+          timerDelivery: patient.timer_delivery_ended_at,
+          treatmentStart: patient.treatment_started,
+          usedDate: dateToUse.toISOString(),
+          key: yearMonthKey
+        });
       }
+
+      return { ...patient, yearMonthKey };
     });
 
-    // Get current date for prorating
-    const currentDate = new Date();
-    const currentYear = currentDate.getFullYear();
-    const currentMonth = currentDate.getMonth() + 1; // 1-12
+    console.log("Monthly Counts:", Object.fromEntries(patientCountByYearMonth));
 
-    // Calculate costs for each patient
-    const calculatedPatients = patients.map((patient) => {
+    // Second pass: Calculate finals with counts
+    const calculatedPatients = patientsWithKeys.map((patient) => {
+      const yearMonthKey = patient.yearMonthKey;
+      const treatmentsInMonth = patientCountByYearMonth.get(yearMonthKey) || 1;
+
+      // Determine allocation year from the key (preferred) or treatment year
+      // yearMonthKey is "YYYY-M"
+      const allocationYear = parseInt(yearMonthKey.split("-")[0]);
+
       const yearId = yearIdMap.get(patient.treatment_year);
+      const allocationYearId = yearIdMap.get(allocationYear);
+
       const variableRate = yearId ? variableRatesMap.get(yearId) : null;
       const directRate = yearId ? directRatesMap.get(yearId) : null;
-      const fixedCost = yearId ? fixedCostsMap.get(yearId) : null;
+      // Use allocation year for fixed costs
+      const fixedCost = allocationYearId ? fixedCostsMap.get(allocationYearId) : (yearId ? fixedCostsMap.get(yearId) : null);
 
       // Default rates if year not found
       const vRates = variableRate || {
@@ -121,31 +156,44 @@ export async function GET() {
         alcohol_rate: 10,
         tissues_rate: 5,
         tools_rate: 20,
+        marketing_fee_rate: 7,
       };
       const fCosts = fixedCost || {
         rent: 5000,
         utilities: 800,
         salaries: 15000,
         internet: 200,
+        legal: 500,
+        accountant_and_audit: 1000,
+        cmo: 5000,
+        monthly_capacity_hours: 192,
       };
 
       // Calculate monthly fixed costs
       const monthlyFixedCost =
-        Number(fCosts.rent) +
-        Number(fCosts.utilities) +
-        Number(fCosts.salaries) +
-        Number(fCosts.internet);
+        Number(fCosts.rent || 0) +
+        Number(fCosts.utilities || 0) +
+        Number(fCosts.salaries || 0) +
+        Number(fCosts.internet || 0) +
+        Number(fCosts.legal || 0) +
+        Number(fCosts.accountant_and_audit || 0) +
+        Number(fCosts.cmo || 0);
 
-      // Prorate fixed costs for current year (only count months elapsed)
-      // For past years, use full 12 months
-      const treatmentYear = patient.treatment_year;
-      const isCurrentYear = treatmentYear === currentYear;
-      const monthsToCount = isCurrentYear ? currentMonth : 12;
-      const yearlyFixedCost = monthlyFixedCost * monthsToCount;
+      // Balanced allocation logic
+      const monthlyFixedAllocation = monthlyFixedCost / treatmentsInMonth;
 
-      // Allocate fixed costs per treatment based on patient count for that year
-      const patientCount = patientCountByYear.get(treatmentYear) || 1;
-      const allocatedFixedCost = yearlyFixedCost / patientCount;
+      // Hours-based allocation logic
+      // Default to 0.5 hours per step (30 mins) if not specified
+      const estimatedHours = patient.number_of_steps * 0.15; // 9 minutes per step
+      const capacityHours =
+        fCosts.monthly_capacity_hours != null
+          ? Number(fCosts.monthly_capacity_hours)
+          : 160;
+      // Prevent division by zero
+      const safeCapacityHours = capacityHours > 0 ? capacityHours : 192;
+
+      const allocatedFixedCost = (monthlyFixedCost * estimatedHours) / safeCapacityHours;
+      const remainingOverhead = monthlyFixedCost - allocatedFixedCost;
 
       // Calculate variable costs
       const sheetsQuantity = patient.number_of_steps * 2 + 4;
@@ -167,25 +215,38 @@ export async function GET() {
       const alcoholCost = Number(dRates.alcohol_rate);
       const tissuesCost = Number(dRates.tissues_rate);
 
-      // Production tools formula: (price_per_head × number_of_sheets × 3/5) + $2
-      // 3 heads needed for every 5 sheets, plus $2 fixed cost per treatment
-      const headsNeeded = sheetsQuantity * (3 / 5);
-      const headsCost = headsNeeded * Number(dRates.tools_rate); // tools_rate = price per head
-      const toolsCost = headsCost + 2; // +$2 fixed cost per treatment
+      // Production tools formula: (price_per_head × number_of_sheets × 0.6) + $2
+      const headsNeeded = sheetsQuantity * 0.6;
+      const headsCost = headsNeeded * Number(dRates.tools_rate);
+      const toolsCost = headsCost + 2;
+
+      // Marketing Fee (calculated from price)
+      const marketingFeeRate =
+        dRates.marketing_fee_rate != null
+          ? Number(dRates.marketing_fee_rate)
+          : 7;
+      const patientPrice = patient.price != null ? Number(patient.price) : 0;
+      const marketingFee = patientPrice * (marketingFeeRate / 100);
 
       const totalDirectCost =
-        designCost + alcoholCost + tissuesCost + toolsCost;
+        designCost + alcoholCost + tissuesCost + toolsCost + marketingFee;
 
       const totalCost =
         totalVariableCost + totalDirectCost + allocatedFixedCost;
 
-      // Handle NULL values from database
-      const price = patient.price != null ? Number(patient.price) : 0;
+      // Handle Clinic ID 1 special logic: Price = Total Cost
+      const isClinic1 = patient.clinic_id === 1 || patient.clinic_id === 5 || patient.clinic_id === 34;
+      let finalPrice = patient.price != null ? Number(patient.price) : 0;
+
+      if (isClinic1) {
+        finalPrice = totalCost;
+      }
+
       const remainingAmount =
         patient.remaining_amount != null ? Number(patient.remaining_amount) : 0;
 
-      const profit = price - totalCost;
-      const profitMargin = price > 0 ? (profit / price) * 100 : 0;
+      const profit = finalPrice - totalCost;
+      const profitMargin = finalPrice > 0 ? (profit / finalPrice) * 100 : 0;
 
       return {
         id: patient.id.toString(),
@@ -197,12 +258,15 @@ export async function GET() {
         printerId: patient.printer_name || "",
         treatmentStarted: patient.treatment_started,
         treatmentEnded: patient.treatment_ended,
+        timerDeliveryEndedAt: patient.timer_delivery_ended_at
+          ? new Date(patient.timer_delivery_ended_at)
+          : undefined,
         status: patient.status,
-        price: price,
+        price: finalPrice,
         paymentRemaining: remainingAmount,
         numberOfSteps: patient.number_of_steps,
         refinement: false,
-        treatmentYear: patient.treatment_year, // Add treatment_year from DB
+        treatmentYear: allocationYear, // Use allocation year for filtering/grouping
         variableCosts: {
           sheets: {
             quantity: sheetsQuantity,
@@ -249,12 +313,21 @@ export async function GET() {
             ratePerTreatment: Number(dRates.tools_rate), // Price per head
             totalCost: toolsCost,
           },
+          marketingFee: {
+            rate: marketingFeeRate,
+            totalCost: marketingFee,
+          },
           totalDirectCost,
         },
         totalCost,
         profit,
         profitMargin,
-        allocatedFixedCost, // Add allocated fixed cost to response
+        allocatedFixedCost,
+        remainingOverhead,
+        monthlyFixedAllocation,
+        estimatedHours,
+        revenuePerHour: estimatedHours > 0 ? finalPrice / estimatedHours : 0,
+        profitPerHour: estimatedHours > 0 ? profit / estimatedHours : 0,
       };
     });
 

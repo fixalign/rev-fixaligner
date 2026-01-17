@@ -38,16 +38,19 @@ export default function FinancialOverview({ stats }: FinancialOverviewProps) {
     stats.netProfit > 0
       ? "positive"
       : stats.netProfit < 0
-      ? "negative"
-      : "neutral";
+        ? "negative"
+        : "neutral";
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">
+        <h2 className="text-2xl font-bold text-gray-900 mb-1">
           Financial Overview
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+        <p className="text-sm text-gray-500 mb-4">
+          Data for {stats.totalPatients} patients across {stats.monthsCounted} months of operations.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6">
           <StatsCard
             title="Total Revenue"
             value={formatCurrency(stats.totalRevenue)}
@@ -72,6 +75,12 @@ export default function FinancialOverview({ stats }: FinancialOverviewProps) {
           />
           <StatsCard
             title="Operational Profit"
+            value={formatCurrency(stats.operationalProfit)}
+            subtitle="Sum of patient margins"
+            trend={stats.operationalProfit >= 0 ? "positive" : "negative"}
+          />
+          <StatsCard
+            title="Net Profit"
             value={formatCurrency(stats.netProfit)}
             subtitle={`Margin: ${formatPercentage(stats.profitMargin)}`}
             trend={profitTrend}

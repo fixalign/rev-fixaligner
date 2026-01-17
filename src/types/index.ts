@@ -9,6 +9,7 @@ export interface Patient {
   printerId: string;
   treatmentStarted: Date;
   treatmentEnded?: Date;
+  timerDeliveryEndedAt?: Date; // Keep optional in base interface, but API will filter
   status: "active" | "completed" | "pending";
   price: number;
   paymentRemaining: number;
@@ -68,6 +69,10 @@ export interface DirectCosts {
     ratePerTreatment: number;
     totalCost: number;
   };
+  marketingFee: {
+    rate: number;
+    totalCost: number;
+  };
   totalDirectCost: number;
 }
 
@@ -79,6 +84,8 @@ export interface FixedCosts {
   internet: number;
   legal: number;
   accountant_and_audit: number;
+  cmo: number;
+  monthlyCapacityHours: number;
   totalFixedCost: number;
 }
 
@@ -89,12 +96,18 @@ export interface TreatmentRecord extends Patient {
   totalCost: number;
   profit: number;
   profitMargin: number;
-  allocatedFixedCost?: number;
+  allocatedFixedCost: number;
+  remainingOverhead: number;
+  monthlyFixedAllocation: number; // For the new balanced allocation model
+  estimatedHours: number;
+  revenuePerHour: number;
+  profitPerHour: number;
 }
 
 // Financial Summary
 export interface FinancialSummary {
   totalRevenue: number;
+  totalPatients: number;
   totalVariableCosts: number;
   totalDirectCosts: number;
   totalFixedCosts: number;
@@ -103,10 +116,9 @@ export interface FinancialSummary {
   netProfit: number;
   profitMargin: number;
   breakEvenPoint: number;
-  treatmentsPerYear: {
-    year2024: number;
-    year2025: number;
-  };
+  monthlyBreakEven: number;
+  monthsCounted: number;
+  treatmentsPerYear: Record<string, number>;
 }
 
 // Dashboard Stats
@@ -117,9 +129,11 @@ export interface DashboardStats {
   totalRevenue: number;
   totalCosts: number;
   grossProfit: number;
+  operationalProfit: number;
   netProfit: number;
   profitMargin: number;
   averageRevenuePerPatient: number;
   averageCostPerPatient: number;
   paymentsRemaining: number;
+  monthsCounted: number;
 }

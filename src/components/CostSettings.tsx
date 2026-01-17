@@ -15,6 +15,7 @@ export interface DirectRates {
   alcoholRate: number;
   tissuesRate: number;
   toolsRate: number;
+  marketingFeeRate: number;
 }
 
 export interface YearlyRates {
@@ -57,7 +58,7 @@ export default function CostSettings({
       bagRate: 0.5,
       boxRate: 15,
     },
-    direct: { designRate: 150, alcoholRate: 10, tissuesRate: 5, toolsRate: 20 },
+    direct: { designRate: 150, alcoholRate: 10, tissuesRate: 5, toolsRate: 20, marketingFeeRate: 7 },
     fixed: {
       rent: 2000,
       utilities: 300,
@@ -65,7 +66,9 @@ export default function CostSettings({
       internet: 100,
       legal: 500,
       accountant_and_audit: 1000,
-      totalFixedCost: 8900,
+      cmo: 5000,
+      monthlyCapacityHours: 192,
+      totalFixedCost: 14000,
     },
   };
 
@@ -90,6 +93,7 @@ export default function CostSettings({
           alcoholRate: 10,
           tissuesRate: 5,
           toolsRate: 20,
+          marketingFeeRate: 7,
         },
         fixed: {
           rent: 2000,
@@ -98,7 +102,9 @@ export default function CostSettings({
           internet: 100,
           legal: 500,
           accountant_and_audit: 1000,
-          totalFixedCost: 8900,
+          cmo: 5000,
+          monthlyCapacityHours: 192,
+          totalFixedCost: 14000,
         },
       };
     }
@@ -111,7 +117,8 @@ export default function CostSettings({
         updatedFixed.salaries +
         updatedFixed.internet +
         updatedFixed.legal +
-        updatedFixed.accountant_and_audit;
+        updatedFixed.accountant_and_audit +
+        updatedFixed.cmo;
       newYearlyRates[year] = { ...newYearlyRates[year], fixed: updatedFixed };
     } else {
       newYearlyRates[year] = {
@@ -151,11 +158,10 @@ export default function CostSettings({
             <div className="flex gap-2 flex-wrap">
               <button
                 onClick={() => onYearChange("all")}
-                className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                  selectedYear === "all"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+                className={`px-4 py-2 rounded-md font-medium transition-colors ${selectedYear === "all"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
               >
                 All Years
               </button>
@@ -163,11 +169,10 @@ export default function CostSettings({
                 <button
                   key={year}
                   onClick={() => onYearChange(year)}
-                  className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                    selectedYear === year
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
+                  className={`px-4 py-2 rounded-md font-medium transition-colors ${selectedYear === year
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
                 >
                   {year}
                 </button>
@@ -186,11 +191,10 @@ export default function CostSettings({
                   <button
                     key={year}
                     onClick={() => setEditingYear(year)}
-                    className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                      editingYear === year
-                        ? "bg-purple-600 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
+                    className={`px-4 py-2 rounded-md font-medium transition-colors ${editingYear === year
+                      ? "bg-purple-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
                   >
                     {year}
                   </button>
@@ -219,7 +223,7 @@ export default function CostSettings({
                   </span>
                   <input
                     type="number"
-                    value={currentRates.fixed.rent}
+                    value={currentRates.fixed.rent ?? ""}
                     onChange={(e) =>
                       updateYearRates(
                         activeEditingYear,
@@ -243,7 +247,7 @@ export default function CostSettings({
                   </span>
                   <input
                     type="number"
-                    value={currentRates.fixed.utilities}
+                    value={currentRates.fixed.utilities ?? ""}
                     onChange={(e) =>
                       updateYearRates(
                         activeEditingYear,
@@ -267,7 +271,7 @@ export default function CostSettings({
                   </span>
                   <input
                     type="number"
-                    value={currentRates.fixed.salaries}
+                    value={currentRates.fixed.salaries ?? ""}
                     onChange={(e) =>
                       updateYearRates(
                         activeEditingYear,
@@ -291,7 +295,7 @@ export default function CostSettings({
                   </span>
                   <input
                     type="number"
-                    value={currentRates.fixed.internet}
+                    value={currentRates.fixed.internet ?? ""}
                     onChange={(e) =>
                       updateYearRates(
                         activeEditingYear,
@@ -315,7 +319,7 @@ export default function CostSettings({
                   </span>
                   <input
                     type="number"
-                    value={currentRates.fixed.legal}
+                    value={currentRates.fixed.legal ?? ""}
                     onChange={(e) =>
                       updateYearRates(
                         activeEditingYear,
@@ -339,12 +343,60 @@ export default function CostSettings({
                   </span>
                   <input
                     type="number"
-                    value={currentRates.fixed.accountant_and_audit}
+                    value={currentRates.fixed.accountant_and_audit ?? ""}
                     onChange={(e) =>
                       updateYearRates(
                         activeEditingYear,
                         "fixed",
                         "accountant_and_audit",
+                        parseFloat(e.target.value) || 0
+                      )
+                    }
+                    className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  CMO + Marketing
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-2.5 text-gray-500">
+                    $
+                  </span>
+                  <input
+                    type="number"
+                    value={currentRates.fixed.cmo ?? ""}
+                    onChange={(e) =>
+                      updateYearRates(
+                        activeEditingYear,
+                        "fixed",
+                        "cmo",
+                        parseFloat(e.target.value) || 0
+                      )
+                    }
+                    className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Monthly Capacity (Hours)
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-2.5 text-gray-500">
+                    ⏱️
+                  </span>
+                  <input
+                    type="number"
+                    value={currentRates.fixed.monthlyCapacityHours ?? ""}
+                    onChange={(e) =>
+                      updateYearRates(
+                        activeEditingYear,
+                        "fixed",
+                        "monthlyCapacityHours",
                         parseFloat(e.target.value) || 0
                       )
                     }
@@ -382,7 +434,7 @@ export default function CostSettings({
                   <input
                     type="number"
                     step="0.01"
-                    value={currentRates.variable.sheetRate}
+                    value={currentRates.variable.sheetRate ?? ""}
                     onChange={(e) =>
                       updateYearRates(
                         activeEditingYear,
@@ -407,7 +459,7 @@ export default function CostSettings({
                   <input
                     type="number"
                     step="0.01"
-                    value={currentRates.variable.caseRate}
+                    value={currentRates.variable.caseRate ?? ""}
                     onChange={(e) =>
                       updateYearRates(
                         activeEditingYear,
@@ -432,7 +484,7 @@ export default function CostSettings({
                   <input
                     type="number"
                     step="0.01"
-                    value={currentRates.variable.resinRate}
+                    value={currentRates.variable.resinRate ?? ""}
                     onChange={(e) =>
                       updateYearRates(
                         activeEditingYear,
@@ -457,7 +509,7 @@ export default function CostSettings({
                   <input
                     type="number"
                     step="0.01"
-                    value={currentRates.variable.bagRate}
+                    value={currentRates.variable.bagRate ?? ""}
                     onChange={(e) =>
                       updateYearRates(
                         activeEditingYear,
@@ -482,7 +534,7 @@ export default function CostSettings({
                   <input
                     type="number"
                     step="0.01"
-                    value={currentRates.variable.boxRate}
+                    value={currentRates.variable.boxRate ?? ""}
                     onChange={(e) =>
                       updateYearRates(
                         activeEditingYear,
@@ -507,7 +559,7 @@ export default function CostSettings({
                   <input
                     type="number"
                     step="0.01"
-                    value={currentRates.direct.designRate}
+                    value={currentRates.direct.designRate ?? ""}
                     onChange={(e) =>
                       updateYearRates(
                         activeEditingYear,
@@ -532,7 +584,7 @@ export default function CostSettings({
                   <input
                     type="number"
                     step="0.01"
-                    value={currentRates.direct.alcoholRate}
+                    value={currentRates.direct.alcoholRate ?? ""}
                     onChange={(e) =>
                       updateYearRates(
                         activeEditingYear,
@@ -557,7 +609,7 @@ export default function CostSettings({
                   <input
                     type="number"
                     step="0.01"
-                    value={currentRates.direct.tissuesRate}
+                    value={currentRates.direct.tissuesRate ?? ""}
                     onChange={(e) =>
                       updateYearRates(
                         activeEditingYear,
@@ -582,12 +634,37 @@ export default function CostSettings({
                   <input
                     type="number"
                     step="0.01"
-                    value={currentRates.direct.toolsRate}
+                    value={currentRates.direct.toolsRate ?? ""}
                     onChange={(e) =>
                       updateYearRates(
                         activeEditingYear,
                         "direct",
                         "toolsRate",
+                        parseFloat(e.target.value) || 0
+                      )
+                    }
+                    className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Marketing Fee Rate (%)
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-2.5 text-gray-500">
+                    %
+                  </span>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={currentRates.direct.marketingFeeRate ?? ""}
+                    onChange={(e) =>
+                      updateYearRates(
+                        activeEditingYear,
+                        "direct",
+                        "marketingFeeRate",
                         parseFloat(e.target.value) || 0
                       )
                     }
@@ -621,10 +698,10 @@ export default function CostSettings({
               </div>
               <div className="flex items-start gap-2">
                 <span className="font-semibold text-gray-700 min-w-[120px]">
-                  Production Tools:
+                  Execution Time:
                 </span>
                 <span className="text-gray-600 font-mono">
-                  (pricePerHead × numberOfSheets × 3/5) + $2
+                  numberOfSteps × 0.15 (9 mins/step)
                 </span>
               </div>
             </div>
