@@ -177,7 +177,7 @@ export async function GET() {
         Number(fCosts.internet || 0) +
         Number(fCosts.legal || 0) +
         Number(fCosts.accountant_and_audit || 0) +
-        Number(fCosts.cmo || 0);
+        (allocationYear < 2026 ? 0 : Number(fCosts.cmo || 0));
 
       // Balanced allocation logic
       const monthlyFixedAllocation = monthlyFixedCost / treatmentsInMonth;

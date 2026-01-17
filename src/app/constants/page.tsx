@@ -706,6 +706,52 @@ export default function ConstantsPage() {
                       />
                     </div>
                   </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      CMO + Marketing
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-3 text-gray-500">
+                        $
+                      </span>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={currentRates.fixed.cmo}
+                        onChange={(e) =>
+                          updateRate(
+                            "fixed",
+                            "cmo",
+                            parseFloat(e.target.value) || 0
+                          )
+                        }
+                        className="w-full pl-8 pr-3 py-3 border-2 border-gray-300 rounded-md text-gray-900 bg-white font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Monthly Capacity (Hours)
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-3 text-gray-500">
+                        h
+                      </span>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={currentRates.fixed.monthlyCapacityHours}
+                        onChange={(e) =>
+                          updateRate(
+                            "fixed",
+                            "monthlyCapacityHours",
+                            parseFloat(e.target.value) || 0
+                          )
+                        }
+                        className="w-full pl-8 pr-3 py-3 border-2 border-gray-300 rounded-md text-gray-900 bg-white font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+                      />
+                    </div>
+                  </div>
                 </div>
                 <div className="mt-6 pt-6 border-t-2 border-gray-200">
                   <div className="flex justify-between items-center bg-red-50 p-4 rounded-lg">
