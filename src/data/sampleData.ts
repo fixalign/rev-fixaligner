@@ -180,6 +180,6 @@ export const sampleTreatments: TreatmentRecord[] = [
     monthlyFixedAllocation: 0, // TODO: Set correct value if known
     estimatedHours: 0, // TODO: Set correct value if known
     revenuePerHour: 0, // TODO: Set correct value if known
-    profitPerHour: 0, // TODO: Set correct value if known
+    profitPerHour: 0, // TODO: Set correct value if known //
   },
 ];
