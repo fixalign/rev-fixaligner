@@ -207,215 +207,217 @@ export default function CostSettings({
             </div>
           )}
 
-          {/* Fixed Costs */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Fixed Costs (Monthly) - {activeEditingYear}
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Rent
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-2.5 text-gray-500">
-                    $
-                  </span>
-                  <input
-                    type="number"
-                    value={currentRates.fixed.rent ?? ""}
-                    onChange={(e) =>
-                      updateYearRates(
-                        activeEditingYear,
-                        "fixed",
-                        "rent",
-                        parseFloat(e.target.value) || 0
-                      )
-                    }
-                    className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
-                  />
+          {/* Fixed Costs - Hide when "All Years" is selected */}
+          {selectedYear !== "all" && (
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Fixed Costs (Monthly) - {activeEditingYear}
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Rent
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-2.5 text-gray-500">
+                      $
+                    </span>
+                    <input
+                      type="number"
+                      value={currentRates.fixed.rent ?? ""}
+                      onChange={(e) =>
+                        updateYearRates(
+                          activeEditingYear,
+                          "fixed",
+                          "rent",
+                          parseFloat(e.target.value) || 0
+                        )
+                      }
+                      className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Utilities
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-2.5 text-gray-500">
+                      $
+                    </span>
+                    <input
+                      type="number"
+                      value={currentRates.fixed.utilities ?? ""}
+                      onChange={(e) =>
+                        updateYearRates(
+                          activeEditingYear,
+                          "fixed",
+                          "utilities",
+                          parseFloat(e.target.value) || 0
+                        )
+                      }
+                      className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Salaries
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-2.5 text-gray-500">
+                      $
+                    </span>
+                    <input
+                      type="number"
+                      value={currentRates.fixed.salaries ?? ""}
+                      onChange={(e) =>
+                        updateYearRates(
+                          activeEditingYear,
+                          "fixed",
+                          "salaries",
+                          parseFloat(e.target.value) || 0
+                        )
+                      }
+                      className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Internet
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-2.5 text-gray-500">
+                      $
+                    </span>
+                    <input
+                      type="number"
+                      value={currentRates.fixed.internet ?? ""}
+                      onChange={(e) =>
+                        updateYearRates(
+                          activeEditingYear,
+                          "fixed",
+                          "internet",
+                          parseFloat(e.target.value) || 0
+                        )
+                      }
+                      className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Legal
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-2.5 text-gray-500">
+                      $
+                    </span>
+                    <input
+                      type="number"
+                      value={currentRates.fixed.legal ?? ""}
+                      onChange={(e) =>
+                        updateYearRates(
+                          activeEditingYear,
+                          "fixed",
+                          "legal",
+                          parseFloat(e.target.value) || 0
+                        )
+                      }
+                      className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Accountant & Audit
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-2.5 text-gray-500">
+                      $
+                    </span>
+                    <input
+                      type="number"
+                      value={currentRates.fixed.accountant_and_audit ?? ""}
+                      onChange={(e) =>
+                        updateYearRates(
+                          activeEditingYear,
+                          "fixed",
+                          "accountant_and_audit",
+                          parseFloat(e.target.value) || 0
+                        )
+                      }
+                      className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    CMO + Marketing
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-2.5 text-gray-500">
+                      $
+                    </span>
+                    <input
+                      type="number"
+                      value={currentRates.fixed.cmo ?? ""}
+                      onChange={(e) =>
+                        updateYearRates(
+                          activeEditingYear,
+                          "fixed",
+                          "cmo",
+                          parseFloat(e.target.value) || 0
+                        )
+                      }
+                      className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Monthly Capacity (Hours)
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-2.5 text-gray-500">
+                      ⏱️
+                    </span>
+                    <input
+                      type="number"
+                      value={currentRates.fixed.monthlyCapacityHours ?? ""}
+                      onChange={(e) =>
+                        updateYearRates(
+                          activeEditingYear,
+                          "fixed",
+                          "monthlyCapacityHours",
+                          parseFloat(e.target.value) || 0
+                        )
+                      }
+                      className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
+                    />
+                  </div>
                 </div>
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Utilities
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-2.5 text-gray-500">
-                    $
+              <div className="mt-4 p-3 bg-blue-50 rounded-md">
+                <div className="flex justify-between items-center">
+                  <span className="font-semibold text-gray-900">
+                    Total Fixed Costs:
                   </span>
-                  <input
-                    type="number"
-                    value={currentRates.fixed.utilities ?? ""}
-                    onChange={(e) =>
-                      updateYearRates(
-                        activeEditingYear,
-                        "fixed",
-                        "utilities",
-                        parseFloat(e.target.value) || 0
-                      )
-                    }
-                    className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Salaries
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-2.5 text-gray-500">
-                    $
+                  <span className="text-lg font-bold text-blue-600">
+                    {formatCurrency(currentRates.fixed.totalFixedCost)}
                   </span>
-                  <input
-                    type="number"
-                    value={currentRates.fixed.salaries ?? ""}
-                    onChange={(e) =>
-                      updateYearRates(
-                        activeEditingYear,
-                        "fixed",
-                        "salaries",
-                        parseFloat(e.target.value) || 0
-                      )
-                    }
-                    className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Internet
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-2.5 text-gray-500">
-                    $
-                  </span>
-                  <input
-                    type="number"
-                    value={currentRates.fixed.internet ?? ""}
-                    onChange={(e) =>
-                      updateYearRates(
-                        activeEditingYear,
-                        "fixed",
-                        "internet",
-                        parseFloat(e.target.value) || 0
-                      )
-                    }
-                    className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Legal
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-2.5 text-gray-500">
-                    $
-                  </span>
-                  <input
-                    type="number"
-                    value={currentRates.fixed.legal ?? ""}
-                    onChange={(e) =>
-                      updateYearRates(
-                        activeEditingYear,
-                        "fixed",
-                        "legal",
-                        parseFloat(e.target.value) || 0
-                      )
-                    }
-                    className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Accountant & Audit
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-2.5 text-gray-500">
-                    $
-                  </span>
-                  <input
-                    type="number"
-                    value={currentRates.fixed.accountant_and_audit ?? ""}
-                    onChange={(e) =>
-                      updateYearRates(
-                        activeEditingYear,
-                        "fixed",
-                        "accountant_and_audit",
-                        parseFloat(e.target.value) || 0
-                      )
-                    }
-                    className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  CMO + Marketing
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-2.5 text-gray-500">
-                    $
-                  </span>
-                  <input
-                    type="number"
-                    value={currentRates.fixed.cmo ?? ""}
-                    onChange={(e) =>
-                      updateYearRates(
-                        activeEditingYear,
-                        "fixed",
-                        "cmo",
-                        parseFloat(e.target.value) || 0
-                      )
-                    }
-                    className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Monthly Capacity (Hours)
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-2.5 text-gray-500">
-                    ⏱️
-                  </span>
-                  <input
-                    type="number"
-                    value={currentRates.fixed.monthlyCapacityHours ?? ""}
-                    onChange={(e) =>
-                      updateYearRates(
-                        activeEditingYear,
-                        "fixed",
-                        "monthlyCapacityHours",
-                        parseFloat(e.target.value) || 0
-                      )
-                    }
-                    className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
-                  />
                 </div>
               </div>
             </div>
-            <div className="mt-4 p-3 bg-blue-50 rounded-md">
-              <div className="flex justify-between items-center">
-                <span className="font-semibold text-gray-900">
-                  Total Fixed Costs:
-                </span>
-                <span className="text-lg font-bold text-blue-600">
-                  {formatCurrency(currentRates.fixed.totalFixedCost)}
-                </span>
-              </div>
-            </div>
-          </div>
+          )}
 
           {/* Variable Costs Rates */}
           <div>

@@ -423,11 +423,10 @@ export default function Home() {
                 )}
                 <button
                   onClick={() => setIsSimulation(!isSimulation)}
-                  className={`px-4 py-2 rounded-md font-medium ${
-                    isSimulation
-                      ? "bg-orange-600 hover:bg-orange-700 text-white"
-                      : "bg-blue-600 hover:bg-blue-700 text-white"
-                  }`}
+                  className={`px-4 py-2 rounded-md font-medium ${isSimulation
+                    ? "bg-orange-600 hover:bg-orange-700 text-white"
+                    : "bg-blue-600 hover:bg-blue-700 text-white"
+                    }`}
                 >
                   {isSimulation ? "📊 Exit Simulation" : "🎮 Run Simulation"}
                 </button>
@@ -510,11 +509,10 @@ export default function Home() {
               )}
               <button
                 onClick={() => setIsSimulation(!isSimulation)}
-                className={`px-4 py-2 rounded-md font-medium ${
-                  isSimulation
-                    ? "bg-orange-600 hover:bg-orange-700 text-white"
-                    : "bg-blue-600 hover:bg-blue-700 text-white"
-                }`}
+                className={`px-4 py-2 rounded-md font-medium ${isSimulation
+                  ? "bg-orange-600 hover:bg-orange-700 text-white"
+                  : "bg-blue-600 hover:bg-blue-700 text-white"
+                  }`}
               >
                 {isSimulation ? "📊 Exit Simulation" : "🎮 Run Simulation"}
               </button>
@@ -561,75 +559,76 @@ export default function Home() {
                 <CostBreakdown treatment={selectedPatient} />
               </div>
             ) : (
-              <div className="bg-white rounded-lg shadow p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">
-                  Fixed Costs (Monthly)
-                  {selectedYear !== "all" && ` - ${selectedYear}`}
-                </h2>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Rent</span>
-                    <span className="font-medium text-gray-900">
-                      ${(currentFixedCosts.rent || 0).toLocaleString()}
-                    </span>
+              selectedYear !== "all" && (
+                <div className="bg-white rounded-lg shadow p-6">
+                  <h2 className="text-xl font-bold text-gray-900 mb-4">
+                    Fixed Costs (Monthly) - {selectedYear}
+                  </h2>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Rent</span>
+                      <span className="font-medium text-gray-900">
+                        ${(currentFixedCosts.rent || 0).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Utilities</span>
+                      <span className="font-medium text-gray-900">
+                        ${(currentFixedCosts.utilities || 0).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Salaries</span>
+                      <span className="font-medium text-gray-900">
+                        ${(currentFixedCosts.salaries || 0).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Internet</span>
+                      <span className="font-medium text-gray-900">
+                        ${(currentFixedCosts.internet || 0).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Legal</span>
+                      <span className="font-medium text-gray-900">
+                        ${(currentFixedCosts.legal || 0).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Accountant & Audit</span>
+                      <span className="font-medium text-gray-900">
+                        $
+                        {(
+                          currentFixedCosts.accountant_and_audit || 0
+                        ).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">CMO + Marketing</span>
+                      <span className="font-medium text-gray-900">
+                        ${(currentFixedCosts.cmo || 0).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between pt-3 border-t-2 border-gray-300">
+                      <span className="font-bold text-gray-900">
+                        Total Fixed Costs
+                      </span>
+                      <span className="font-bold text-lg text-red-600">
+                        $
+                        {(currentFixedCosts.totalFixedCost || 0).toLocaleString()}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Utilities</span>
-                    <span className="font-medium text-gray-900">
-                      ${(currentFixedCosts.utilities || 0).toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Salaries</span>
-                    <span className="font-medium text-gray-900">
-                      ${(currentFixedCosts.salaries || 0).toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Internet</span>
-                    <span className="font-medium text-gray-900">
-                      ${(currentFixedCosts.internet || 0).toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Legal</span>
-                    <span className="font-medium text-gray-900">
-                      ${(currentFixedCosts.legal || 0).toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Accountant & Audit</span>
-                    <span className="font-medium text-gray-900">
-                      $
-                      {(
-                        currentFixedCosts.accountant_and_audit || 0
-                      ).toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">CMO + Marketing</span>
-                    <span className="font-medium text-gray-900">
-                      ${(currentFixedCosts.cmo || 0).toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex justify-between pt-3 border-t-2 border-gray-300">
-                    <span className="font-bold text-gray-900">
-                      Total Fixed Costs
-                    </span>
-                    <span className="font-bold text-lg text-red-600">
-                      $
-                      {(currentFixedCosts.totalFixedCost || 0).toLocaleString()}
-                    </span>
-                  </div>
-                </div>
 
-                <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-                  <p className="text-sm text-gray-700">
-                    💡 Click on a patient in the table below to see detailed
-                    cost breakdown
-                  </p>
+                  <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                    <p className="text-sm text-gray-700">
+                      💡 Click on a patient in the table below to see detailed
+                      cost breakdown
+                    </p>
+                  </div>
                 </div>
-              </div>
+              )
             )}
           </div>
 

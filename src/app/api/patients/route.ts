@@ -235,17 +235,28 @@ export async function GET() {
         totalVariableCost + totalDirectCost + allocatedFixedCost;
 
       // Handle Clinic ID 1 special logic: Price = Total Cost
+      // Only applies from Dec 2025 onwards
       const isClinic1 = patient.clinic_id === 1 || patient.clinic_id === 5 || patient.clinic_id === 34;
       let finalPrice = patient.price != null ? Number(patient.price) : 0;
 
-      if (isClinic1) {
+      // Extract month from key "YYYY-M"
+      const allocationMonth = parseInt(yearMonthKey.split("-")[1]);
+      const isClinic1Exception = isClinic1 && (allocationYear > 2025 || (allocationYear === 2025 && allocationMonth === 11));
+
+      if (isClinic1Exception) {
         finalPrice = totalCost;
       }
 
       const remainingAmount =
         patient.remaining_amount != null ? Number(patient.remaining_amount) : 0;
 
-      const profit = finalPrice - totalCost;
+      let profit = finalPrice - totalCost;
+
+      // Special profit logic for Clinic 1 exception: Profit = Price - Overhead Share (Monthly Allocation)
+      if (isClinic1Exception) {
+        profit = finalPrice - monthlyFixedAllocation;
+      }
+
       const profitMargin = finalPrice > 0 ? (profit / finalPrice) * 100 : 0;
 
       return {
