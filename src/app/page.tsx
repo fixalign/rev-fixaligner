@@ -87,14 +87,17 @@ export default function Home() {
         const alcoholCost = rates.direct.alcoholRate;
         const tissuesCost = rates.direct.tissuesRate;
         const toolsRate = rates.direct.toolsRate;
-        const toolsCost = (toolsRate * sheetsQty * 0.6) + 2;
-        const marketingFee = price * ((rates.direct.marketingFeeRate || 7) / 100);
+        const toolsCost = toolsRate * sheetsQty * 0.6 + 2;
+        const marketingFee =
+          price * ((rates.direct.marketingFeeRate || 7) / 100);
 
         const totalDirectCost =
           designCost + alcoholCost + tissuesCost + toolsCost + marketingFee;
 
         const estimatedHours = numberOfSteps * 0.15; // 9 minutes per step
-        const allocatedFixedCost = (rates.fixed.totalFixedCost * estimatedHours) / (rates.fixed.monthlyCapacityHours || 192);
+        const allocatedFixedCost =
+          (rates.fixed.totalFixedCost * estimatedHours) /
+          (rates.fixed.monthlyCapacityHours || 192);
 
         const totalCost =
           totalVariableCost + totalDirectCost + allocatedFixedCost;
@@ -118,25 +121,62 @@ export default function Home() {
           treatmentYear: currentYear,
           paymentRemaining: 0,
           variableCosts: {
-            sheets: { quantity: sheetsQty, ratePerSheet: rates.variable.sheetRate, totalCost: sheetsCost },
-            caseAndAccessories: { quantity: 1, ratePerCase: rates.variable.caseRate, totalCost: caseCost },
-            resin: { quantity: resinQty, ratePerLiter: rates.variable.resinRate, totalCost: resinCost },
-            bag: { quantity: 1, ratePerBag: rates.variable.bagRate, totalCost: bagCost },
-            packagingBox: { quantity: 1, ratePerBox: rates.variable.boxRate, totalCost: boxCost },
+            sheets: {
+              quantity: sheetsQty,
+              ratePerSheet: rates.variable.sheetRate,
+              totalCost: sheetsCost,
+            },
+            caseAndAccessories: {
+              quantity: 1,
+              ratePerCase: rates.variable.caseRate,
+              totalCost: caseCost,
+            },
+            resin: {
+              quantity: resinQty,
+              ratePerLiter: rates.variable.resinRate,
+              totalCost: resinCost,
+            },
+            bag: {
+              quantity: 1,
+              ratePerBag: rates.variable.bagRate,
+              totalCost: bagCost,
+            },
+            packagingBox: {
+              quantity: 1,
+              ratePerBox: rates.variable.boxRate,
+              totalCost: boxCost,
+            },
             totalVariableCost,
           },
           directCosts: {
-            design: { quantity: 1, ratePerDesign: rates.direct.designRate, totalCost: designCost },
-            alcohol: { ratePerTreatment: rates.direct.alcoholRate, totalCost: alcoholCost },
-            tissues: { ratePerTreatment: rates.direct.tissuesRate, totalCost: tissuesCost },
-            productionTools: { ratePerTreatment: toolsRate, totalCost: toolsCost },
-            marketingFee: { rate: rates.direct.marketingFeeRate || 7, totalCost: marketingFee },
+            design: {
+              quantity: 1,
+              ratePerDesign: rates.direct.designRate,
+              totalCost: designCost,
+            },
+            alcohol: {
+              ratePerTreatment: rates.direct.alcoholRate,
+              totalCost: alcoholCost,
+            },
+            tissues: {
+              ratePerTreatment: rates.direct.tissuesRate,
+              totalCost: tissuesCost,
+            },
+            productionTools: {
+              ratePerTreatment: toolsRate,
+              totalCost: toolsCost,
+            },
+            marketingFee: {
+              rate: rates.direct.marketingFeeRate || 7,
+              totalCost: marketingFee,
+            },
             totalDirectCost,
           },
           totalCost,
           profit,
           profitMargin,
           allocatedFixedCost,
+          monthlyFixedAllocation: allocatedFixedCost, // Added property for TreatmentRecord compliance
           remainingOverhead: rates.fixed.totalFixedCost - allocatedFixedCost,
           estimatedHours,
           revenuePerHour: price / estimatedHours,
@@ -245,8 +285,10 @@ export default function Home() {
         years.reduce((sum, y) => sum + yearlyRates[y].fixed.cmo, 0) /
         years.length;
       const avgCapacity =
-        years.reduce((sum, y) => sum + (yearlyRates[y].fixed.monthlyCapacityHours || 192), 0) /
-        years.length;
+        years.reduce(
+          (sum, y) => sum + (yearlyRates[y].fixed.monthlyCapacityHours || 192),
+          0
+        ) / years.length;
 
       return {
         rent: avgRent,
@@ -270,7 +312,11 @@ export default function Home() {
     return yearlyRates[selectedYear]?.fixed || defaultFixed;
   }, [selectedYear, yearlyRates]);
 
-  const stats = calculateDashboardStats(filteredTreatments, yearlyRates, selectedYear);
+  const stats = calculateDashboardStats(
+    filteredTreatments,
+    yearlyRates,
+    selectedYear
+  );
   const financialSummary = calculateFinancialSummary(
     filteredTreatments,
     yearlyRates,
@@ -377,10 +423,11 @@ export default function Home() {
                 )}
                 <button
                   onClick={() => setIsSimulation(!isSimulation)}
-                  className={`px-4 py-2 rounded-md font-medium ${isSimulation
-                    ? "bg-orange-600 hover:bg-orange-700 text-white"
-                    : "bg-blue-600 hover:bg-blue-700 text-white"
-                    }`}
+                  className={`px-4 py-2 rounded-md font-medium ${
+                    isSimulation
+                      ? "bg-orange-600 hover:bg-orange-700 text-white"
+                      : "bg-blue-600 hover:bg-blue-700 text-white"
+                  }`}
                 >
                   {isSimulation ? "📊 Exit Simulation" : "🎮 Run Simulation"}
                 </button>
@@ -463,10 +510,11 @@ export default function Home() {
               )}
               <button
                 onClick={() => setIsSimulation(!isSimulation)}
-                className={`px-4 py-2 rounded-md font-medium ${isSimulation
-                  ? "bg-orange-600 hover:bg-orange-700 text-white"
-                  : "bg-blue-600 hover:bg-blue-700 text-white"
-                  }`}
+                className={`px-4 py-2 rounded-md font-medium ${
+                  isSimulation
+                    ? "bg-orange-600 hover:bg-orange-700 text-white"
+                    : "bg-blue-600 hover:bg-blue-700 text-white"
+                }`}
               >
                 {isSimulation ? "📊 Exit Simulation" : "🎮 Run Simulation"}
               </button>
@@ -552,7 +600,10 @@ export default function Home() {
                   <div className="flex justify-between">
                     <span className="text-gray-600">Accountant & Audit</span>
                     <span className="font-medium text-gray-900">
-                      ${(currentFixedCosts.accountant_and_audit || 0).toLocaleString()}
+                      $
+                      {(
+                        currentFixedCosts.accountant_and_audit || 0
+                      ).toLocaleString()}
                     </span>
                   </div>
                   <div className="flex justify-between">
@@ -566,7 +617,8 @@ export default function Home() {
                       Total Fixed Costs
                     </span>
                     <span className="font-bold text-lg text-red-600">
-                      ${(currentFixedCosts.totalFixedCost || 0).toLocaleString()}
+                      $
+                      {(currentFixedCosts.totalFixedCost || 0).toLocaleString()}
                     </span>
                   </div>
                 </div>
