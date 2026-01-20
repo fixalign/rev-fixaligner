@@ -85,7 +85,7 @@ export function calculateFinancialSummary(
     // Fallback to sensible defaults ONLY if year data is missing
     return {
       variable: { sheetRate: 8, caseRate: 45, resinRate: 120, bagRate: 0.5, boxRate: 15 },
-      direct: { designRate: 150, alcoholRate: 10, tissuesRate: 5, toolsRate: 20, marketingFeeRate: 7 },
+      direct: { designRate: 150, alcoholRate: 10, tissuesRate: 5, toolsRate: 20 },
       fixed: { rent: 5000, utilities: 800, salaries: 15000, internet: 200, legal: 500, accountant_and_audit: 1000, cmo: 5000, monthlyCapacityHours: 192, totalFixedCost: 27500 }
     };
   };
