@@ -51,7 +51,6 @@ interface DirectCostRate extends RowDataPacket {
   alcohol_rate: number;
   tissues_rate: number;
   tools_rate: number;
-  marketing_fee_rate: number;
 }
 
 interface FixedCost extends RowDataPacket {
@@ -156,7 +155,6 @@ export async function GET() {
         alcohol_rate: 10,
         tissues_rate: 5,
         tools_rate: 20,
-        marketing_fee_rate: 7,
       };
       const fCosts = fixedCost || {
         rent: 5000,
@@ -220,16 +218,8 @@ export async function GET() {
       const headsCost = headsNeeded * Number(dRates.tools_rate);
       const toolsCost = headsCost + 2;
 
-      // Marketing Fee (calculated from price)
-      const marketingFeeRate =
-        dRates.marketing_fee_rate != null
-          ? Number(dRates.marketing_fee_rate)
-          : 7;
-      const patientPrice = patient.price != null ? Number(patient.price) : 0;
-      const marketingFee = patientPrice * (marketingFeeRate / 100);
-
       const totalDirectCost =
-        designCost + alcoholCost + tissuesCost + toolsCost + marketingFee;
+        designCost + alcoholCost + tissuesCost + toolsCost;
 
       const totalCost =
         totalVariableCost + totalDirectCost + allocatedFixedCost;
@@ -324,10 +314,6 @@ export async function GET() {
             ratePerTreatment: Number(dRates.tools_rate), // Price per head
             totalCost: toolsCost,
           },
-          marketingFee: {
-            rate: marketingFeeRate,
-            totalCost: marketingFee,
-          },
           totalDirectCost,
         },
         totalCost,
@@ -339,6 +325,7 @@ export async function GET() {
         estimatedHours,
         revenuePerHour: estimatedHours > 0 ? finalPrice / estimatedHours : 0,
         profitPerHour: estimatedHours > 0 ? profit / estimatedHours : 0,
+        isCostPlusPricing: isClinic1Exception,
       };
     });
 

@@ -17,6 +17,18 @@ export default function CostBreakdown({ treatment }: CostBreakdownProps) {
         Calculated using {treatmentYear} rates
       </p>
 
+      {treatment.isCostPlusPricing && (
+        <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+          <div className="flex items-center gap-2 text-amber-800 font-bold mb-1">
+            <span>🛡️</span>
+            <span>Cost-Plus Pricing Model Applied</span>
+          </div>
+          <p className="text-xs text-amber-700">
+            This clinic (<strong>{treatment.clinicName || "Clinic 1"}</strong>) is billed at exactly <strong>Total Cost</strong> (Variable + Direct + Overhead Share) for treatments starting from Dec 2025.
+          </p>
+        </div>
+      )}
+
       <div className="space-y-6">
         {/* Variable Costs */}
         <div>
@@ -107,14 +119,6 @@ export default function CostBreakdown({ treatment }: CostBreakdownProps) {
                 )}
               </span>
             </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-600">
-                Marketing Fee ({treatment.directCosts.marketingFee.rate}%)
-              </span>
-              <span className="font-medium text-gray-900">
-                {formatCurrency(treatment.directCosts.marketingFee.totalCost)}
-              </span>
-            </div>
             <div className="flex justify-between text-sm font-semibold pt-2 border-t">
               <span className="text-gray-800">Total Variable Costs</span>
               <span className="text-red-600">
@@ -169,11 +173,26 @@ export default function CostBreakdown({ treatment }: CostBreakdownProps) {
               <span className="font-semibold text-gray-900">
                 Treatment Price
               </span>
-              <span className="font-bold text-green-600">
-                {formatCurrency(treatment.price)}
-              </span>
+              <div className="flex flex-col items-end">
+                <span className="font-bold text-green-600">
+                  {formatCurrency(treatment.price)}
+                </span>
+                {treatment.isCostPlusPricing && (
+                  <span className="text-[10px] text-amber-600 font-medium">
+                    (Price = Total Cost)
+                  </span>
+                )}
+              </div>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between text-xs text-gray-500 italic pl-2">
+              <span>Variable + Direct Costs</span>
+              <span>{formatCurrency(treatment.variableCosts.totalVariableCost + treatment.directCosts.totalDirectCost)}</span>
+            </div>
+            <div className="flex justify-between text-xs text-gray-500 italic pl-2">
+              <span>Overhead Share</span>
+              <span>{formatCurrency(treatment.allocatedFixedCost)}</span>
+            </div>
+            <div className="flex justify-between pt-2 border-t">
               <span className="font-semibold text-gray-900">
                 Variable Costs
               </span>

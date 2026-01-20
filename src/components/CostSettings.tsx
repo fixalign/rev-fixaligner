@@ -15,7 +15,6 @@ export interface DirectRates {
   alcoholRate: number;
   tissuesRate: number;
   toolsRate: number;
-  marketingFeeRate: number;
 }
 
 export interface YearlyRates {
@@ -58,7 +57,7 @@ export default function CostSettings({
       bagRate: 0.5,
       boxRate: 15,
     },
-    direct: { designRate: 150, alcoholRate: 10, tissuesRate: 5, toolsRate: 20, marketingFeeRate: 7 },
+    direct: { designRate: 150, alcoholRate: 10, tissuesRate: 5, toolsRate: 20 },
     fixed: {
       rent: 2000,
       utilities: 300,
@@ -93,7 +92,6 @@ export default function CostSettings({
           alcoholRate: 10,
           tissuesRate: 5,
           toolsRate: 20,
-          marketingFeeRate: 7,
         },
         fixed: {
           rent: 2000,
@@ -642,31 +640,6 @@ export default function CostSettings({
                         activeEditingYear,
                         "direct",
                         "toolsRate",
-                        parseFloat(e.target.value) || 0
-                      )
-                    }
-                    className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Marketing Fee Rate (%)
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-2.5 text-gray-500">
-                    %
-                  </span>
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={currentRates.direct.marketingFeeRate ?? ""}
-                    onChange={(e) =>
-                      updateYearRates(
-                        activeEditingYear,
-                        "direct",
-                        "marketingFeeRate",
                         parseFloat(e.target.value) || 0
                       )
                     }

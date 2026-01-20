@@ -46,7 +46,6 @@ export default function Home() {
           alcoholRate: 10,
           tissuesRate: 5,
           toolsRate: 20,
-          marketingFeeRate: 7,
         },
         fixed: {
           rent: 5000,
@@ -88,11 +87,9 @@ export default function Home() {
         const tissuesCost = rates.direct.tissuesRate;
         const toolsRate = rates.direct.toolsRate;
         const toolsCost = toolsRate * sheetsQty * 0.6 + 2;
-        const marketingFee =
-          price * ((rates.direct.marketingFeeRate || 7) / 100);
 
         const totalDirectCost =
-          designCost + alcoholCost + tissuesCost + toolsCost + marketingFee;
+          designCost + alcoholCost + tissuesCost + toolsCost;
 
         const estimatedHours = numberOfSteps * 0.15; // 9 minutes per step
         const allocatedFixedCost =
@@ -165,10 +162,6 @@ export default function Home() {
             productionTools: {
               ratePerTreatment: toolsRate,
               totalCost: toolsCost,
-            },
-            marketingFee: {
-              rate: rates.direct.marketingFeeRate || 7,
-              totalCost: marketingFee,
             },
             totalDirectCost,
           },

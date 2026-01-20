@@ -23,7 +23,6 @@ export default function FormulasPage() {
         alcohol: 10,
         tissues: 5,
         tools: 20,
-        marketingRate: 7,
         monthlyFixed: 27500, // Updated with 5000 CMO
         capacity: 192,
     };
@@ -42,7 +41,6 @@ export default function FormulasPage() {
         alcohol: rates.alcohol,
         tissues: rates.tissues,
         tools: sheetsQty * 0.6 * rates.tools + 2,
-        marketing: price * (rates.marketingRate / 100),
     };
     const totalDirect = Object.values(directCosts).reduce((a, b) => a + b, 0);
 
@@ -170,18 +168,13 @@ export default function FormulasPage() {
                     {/* Section 2: Direct Costs */}
                     <section className="bg-white p-8 rounded-xl shadow-sm border border-gray-200">
                         <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-                            <span className="bg-green-100 p-2 rounded-lg mr-3">🛠️</span> Direct & Marketing Costs
+                            <span className="bg-green-100 p-2 rounded-lg mr-3">🛠️</span> Direct Costs
                         </h2>
                         <div className="space-y-6">
                             <div className="p-4 border-l-4 border-green-500 bg-green-50 mb-6">
                                 <h3 className="font-bold text-gray-800 mb-1">Production Tools (3:5 Rule)</h3>
                                 <code className="text-green-700 block my-2 font-bold">(Sheets × 0.6) × Head_Rate + $2</code>
                                 <p className="text-sm text-gray-600">We consume 3 tools heads for every 5 sheets used, plus a standard $2 maintenance fee.</p>
-                            </div>
-                            <div className="p-4 border-l-4 border-blue-500 bg-blue-50">
-                                <h3 className="font-bold text-gray-800 mb-1">Marketing Fee</h3>
-                                <code className="text-blue-700 block my-2 font-bold">Treatment Price × {rates.marketingRate}%</code>
-                                <p className="text-sm text-gray-600">Calculated as a percentage of the final price to represent lead acquisition cost.</p>
                             </div>
                         </div>
                     </section>

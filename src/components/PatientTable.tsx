@@ -105,8 +105,15 @@ export default function PatientTable({
                       onClick={() => onPatientClick?.(treatment.id)}
                     >
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">
-                          {treatment.name}
+                        <div className="flex items-center gap-2">
+                          <div className="text-sm font-medium text-gray-900">
+                            {treatment.name}
+                          </div>
+                          {treatment.isCostPlusPricing && (
+                            <span title="Cost-Plus Pricing Applied" className="text-amber-500 cursor-help" aria-label="Cost-Plus Pricing Applied">
+                              🛡️
+                            </span>
+                          )}
                         </div>
                         <div className="text-sm text-gray-500">{treatment.id}</div>
                       </td>

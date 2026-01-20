@@ -84,28 +84,26 @@ export async function PUT(request: NextRequest) {
       if (Array.isArray(existingDirect) && existingDirect.length > 0) {
         await connection.query(
           `UPDATE direct_cost_rates 
-           SET design_rate = ?, alcohol_rate = ?, tissues_rate = ?, tools_rate = ?, marketing_fee_rate = ?, updated_at = NOW()
+           SET design_rate = ?, alcohol_rate = ?, tissues_rate = ?, tools_rate = ?, updated_at = NOW()
            WHERE year_id = ?`,
           [
             direct.designRate,
             direct.alcoholRate,
             direct.tissuesRate,
             direct.toolsRate,
-            direct.marketingFeeRate,
             yearId,
           ]
         );
       } else {
         await connection.query(
-          `INSERT INTO direct_cost_rates (year_id, design_rate, alcohol_rate, tissues_rate, tools_rate, marketing_fee_rate, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+          `INSERT INTO direct_cost_rates (year_id, design_rate, alcohol_rate, tissues_rate, tools_rate, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, NOW(), NOW())`,
           [
             yearId,
             direct.designRate,
             direct.alcoholRate,
             direct.tissuesRate,
             direct.toolsRate,
-            direct.marketingFeeRate,
           ]
         );
       }

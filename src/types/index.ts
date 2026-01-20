@@ -18,6 +18,7 @@ export interface Patient {
   refinementTime?: number;
   refinementSteps?: number;
   treatmentYear?: number;
+  isCostPlusPricing?: boolean;
 }
 
 // Variable Costs
@@ -67,10 +68,6 @@ export interface DirectCosts {
   };
   productionTools: {
     ratePerTreatment: number;
-    totalCost: number;
-  };
-  marketingFee: {
-    rate: number;
     totalCost: number;
   };
   totalDirectCost: number;

@@ -22,7 +22,6 @@ interface DirectCostRate extends RowDataPacket {
   alcohol_rate: number;
   tissues_rate: number;
   tools_rate: number;
-  marketing_fee_rate: number;
 }
 
 interface FixedCost extends RowDataPacket {
@@ -83,9 +82,6 @@ export async function GET() {
           alcoholRate: Number(direct?.alcohol_rate || 10),
           tissuesRate: Number(direct?.tissues_rate || 5),
           toolsRate: Number(direct?.tools_rate || 20),
-          marketingFeeRate: Number(
-            direct?.marketing_fee_rate != null ? direct.marketing_fee_rate : 7
-          ),
         },
         fixed: {
           rent: Number(fixed?.rent || 5000),
