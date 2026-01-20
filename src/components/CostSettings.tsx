@@ -358,7 +358,7 @@ export default function CostSettings({
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    CMO + Marketing
+                    CMO Fee
                   </label>
                   <div className="relative">
                     <span className="absolute left-3 top-2.5 text-gray-500">

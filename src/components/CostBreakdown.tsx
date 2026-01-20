@@ -24,7 +24,7 @@ export default function CostBreakdown({ treatment }: CostBreakdownProps) {
             <span>Cost-Plus Pricing Model Applied</span>
           </div>
           <p className="text-xs text-amber-700">
-            This clinic (<strong>{treatment.clinicName || "Clinic 1"}</strong>) is billed at exactly <strong>Total Cost</strong> (Variable + Direct + Overhead Share) for treatments starting from Dec 2025.
+            This clinic (<strong>{treatment.clinicName || "Clinic 1"}</strong>) is billed at exactly <strong>Total Cost</strong> (Variable + Direct + Overhead Share) for treatments starting from Jan 2026.
           </p>
         </div>
       )}

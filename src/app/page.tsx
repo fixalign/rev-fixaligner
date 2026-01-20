@@ -598,7 +598,7 @@ export default function Home() {
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">CMO + Marketing</span>
+                      <span className="text-gray-600">CMO Fee</span>
                       <span className="font-medium text-gray-900">
                         ${(currentFixedCosts.cmo || 0).toLocaleString()}
                       </span>

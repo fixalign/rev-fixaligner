@@ -210,7 +210,7 @@ export default function FormulasPage() {
                 </div>
 
                 <div className="mt-12 text-center text-gray-400 text-sm">
-                    <p>© 2026 Financial Engine v2.0 - Fully Integrated CMOS & Marketing Fees</p>
+                    <p>© 2026 Financial Engine v2.1 - Fully Integrated CMOS (No Marketing Fees)</p>
                 </div>
             </div>
         </div>

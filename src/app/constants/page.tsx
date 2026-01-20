@@ -708,7 +708,7 @@ export default function ConstantsPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      CMO + Marketing
+                      CMO Fee
                     </label>
                     <div className="relative">
                       <span className="absolute left-3 top-3 text-gray-500">

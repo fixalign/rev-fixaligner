@@ -137,8 +137,8 @@ export async function GET() {
       const yearId = yearIdMap.get(patient.treatment_year);
       const allocationYearId = yearIdMap.get(allocationYear);
 
-      const variableRate = yearId ? variableRatesMap.get(yearId) : null;
-      const directRate = yearId ? directRatesMap.get(yearId) : null;
+      const variableRate = allocationYearId ? variableRatesMap.get(allocationYearId) : (yearId ? variableRatesMap.get(yearId) : null);
+      const directRate = allocationYearId ? directRatesMap.get(allocationYearId) : (yearId ? directRatesMap.get(yearId) : null);
       // Use allocation year for fixed costs
       const fixedCost = allocationYearId ? fixedCostsMap.get(allocationYearId) : (yearId ? fixedCostsMap.get(yearId) : null);
 
@@ -225,13 +225,12 @@ export async function GET() {
         totalVariableCost + totalDirectCost + allocatedFixedCost;
 
       // Handle Clinic ID 1 special logic: Price = Total Cost
-      // Only applies from Dec 2025 onwards
+      // Only applies from Jan 2026 onwards
       const isClinic1 = patient.clinic_id === 1 || patient.clinic_id === 5 || patient.clinic_id === 34;
       let finalPrice = patient.price != null ? Number(patient.price) : 0;
 
       // Extract month from key "YYYY-M"
-      const allocationMonth = parseInt(yearMonthKey.split("-")[1]);
-      const isClinic1Exception = isClinic1 && (allocationYear > 2025 || (allocationYear === 2025 && allocationMonth === 11));
+      const isClinic1Exception = isClinic1 && (allocationYear >= 2026);
 
       if (isClinic1Exception) {
         finalPrice = totalCost;
