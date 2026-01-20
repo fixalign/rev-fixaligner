@@ -43,7 +43,6 @@ export const sampleTreatments: TreatmentRecord[] = [
       alcohol: { ratePerTreatment: 10, totalCost: 10 },
       tissues: { ratePerTreatment: 5, totalCost: 5 },
       productionTools: { ratePerTreatment: 20, totalCost: 20 },
-      marketingFee: { rate: 0, totalCost: 0 }, // TODO: Set correct value if known
       totalDirectCost: 185,
     },
     totalCost: 786.45,
@@ -85,7 +84,6 @@ export const sampleTreatments: TreatmentRecord[] = [
       alcohol: { ratePerTreatment: 10, totalCost: 10 },
       tissues: { ratePerTreatment: 5, totalCost: 5 },
       productionTools: { ratePerTreatment: 20, totalCost: 20 },
-      marketingFee: { rate: 0, totalCost: 0 }, // TODO: Set correct value if known
       totalDirectCost: 185,
     },
     totalCost: 953.36,
@@ -126,7 +124,6 @@ export const sampleTreatments: TreatmentRecord[] = [
       alcohol: { ratePerTreatment: 10, totalCost: 10 },
       tissues: { ratePerTreatment: 5, totalCost: 5 },
       productionTools: { ratePerTreatment: 20, totalCost: 20 },
-      marketingFee: { rate: 0, totalCost: 0 }, // TODO: Set correct value if known
       totalDirectCost: 185,
     },
     totalCost: 661.27,
@@ -169,7 +166,6 @@ export const sampleTreatments: TreatmentRecord[] = [
       alcohol: { ratePerTreatment: 10, totalCost: 10 },
       tissues: { ratePerTreatment: 5, totalCost: 5 },
       productionTools: { ratePerTreatment: 20, totalCost: 20 },
-      marketingFee: { rate: 0, totalCost: 0 }, // TODO: Set correct value if known
       totalDirectCost: 185,
     },
     totalCost: 869.91,
