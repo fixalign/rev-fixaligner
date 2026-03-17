@@ -224,16 +224,18 @@ export async function GET() {
       const totalCost =
         totalVariableCost + totalDirectCost + allocatedFixedCost;
 
-      // Handle Clinic ID 1 special logic: Price = Total Cost
-      // Only applies from Jan 2026 onwards
-      const isClinic1 = Number(patient.clinic_id) === 1 || Number(patient.clinic_id) === 5 || Number(patient.clinic_id) === 34;
+      // Clinic logic
+      const isMineersSmileCenter = Number(patient.clinic_id) === 1;
+      const isMinersBG = Number(patient.clinic_id) === 5 || Number(patient.clinic_id) === 34;
+      const isClinic1 = isMineersSmileCenter || isMinersBG;
 
       let finalPrice = patient.price != null ? Number(patient.price) : 0;
 
-      // Extract month from key "YYYY-M"
       const isClinic1Exception = isClinic1 && (allocationYear >= 2024);
 
-      if (isClinic1Exception) {
+      if (isMinersBG && allocationYear >= 2024) {
+        finalPrice = 2000;
+      } else if (isMineersSmileCenter && allocationYear >= 2024) {
         finalPrice = totalCost;
       }
 
