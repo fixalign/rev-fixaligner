@@ -226,7 +226,7 @@ export async function GET() {
 
       // Handle Clinic ID 1 special logic: Price = Total Cost
       // Only applies from Jan 2026 onwards
-      const isClinic1 = patient.clinic_id === 1 || patient.clinic_id === 5 || patient.clinic_id === 34;
+      const isClinic1 = Number(patient.clinic_id) === 1 || Number(patient.clinic_id) === 5 || Number(patient.clinic_id) === 34;
       let finalPrice = patient.price != null ? Number(patient.price) : 0;
 
       // Extract month from key "YYYY-M"
