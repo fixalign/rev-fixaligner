@@ -230,7 +230,7 @@ export async function GET() {
       let finalPrice = patient.price != null ? Number(patient.price) : 0;
 
       // Extract month from key "YYYY-M"
-      const isClinic1Exception = isClinic1 && (allocationYear >= 2026);
+      const isClinic1Exception = isClinic1 && (allocationYear >= 2024);
 
       if (isClinic1Exception) {
         finalPrice = totalCost;
