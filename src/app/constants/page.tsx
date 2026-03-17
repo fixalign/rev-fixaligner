@@ -134,7 +134,9 @@ export default function ConstantsPage() {
         internet: 200,
         legal: 500,
         accountant_and_audit: 1000,
-        totalFixedCost: 22500,
+        cmo: 5000,
+        monthlyCapacityHours: 192,
+        totalFixedCost: 24500,
       },
     };
 
@@ -177,7 +179,9 @@ export default function ConstantsPage() {
           internet: 200,
           legal: 500,
           accountant_and_audit: 1000,
-          totalFixedCost: 22500,
+          cmo: 5000,
+          monthlyCapacityHours: 192,
+          totalFixedCost: 24500,
         },
       };
 
@@ -197,7 +201,8 @@ export default function ConstantsPage() {
           updated.fixed.salaries +
           updated.fixed.internet +
           updated.fixed.legal +
-          updated.fixed.accountant_and_audit;
+          updated.fixed.accountant_and_audit +
+          updated.fixed.cmo;
       }
 
       return {
@@ -248,11 +253,10 @@ export default function ConstantsPage() {
           {/* Message Display */}
           {message && (
             <div
-              className={`mb-6 p-4 rounded-lg ${
-                message.type === "success"
-                  ? "bg-green-50 text-green-800 border border-green-200"
-                  : "bg-red-50 text-red-800 border border-red-200"
-              }`}
+              className={`mb-6 p-4 rounded-lg ${message.type === "success"
+                ? "bg-green-50 text-green-800 border border-green-200"
+                : "bg-red-50 text-red-800 border border-red-200"
+                }`}
             >
               <div className="flex items-center">
                 <span className="text-lg mr-2">
@@ -702,6 +706,52 @@ export default function ConstantsPage() {
                       />
                     </div>
                   </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      CMO Fee
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-3 text-gray-500">
+                        $
+                      </span>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={currentRates.fixed.cmo}
+                        onChange={(e) =>
+                          updateRate(
+                            "fixed",
+                            "cmo",
+                            parseFloat(e.target.value) || 0
+                          )
+                        }
+                        className="w-full pl-8 pr-3 py-3 border-2 border-gray-300 rounded-md text-gray-900 bg-white font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Monthly Capacity (Hours)
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-3 text-gray-500">
+                        h
+                      </span>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={currentRates.fixed.monthlyCapacityHours}
+                        onChange={(e) =>
+                          updateRate(
+                            "fixed",
+                            "monthlyCapacityHours",
+                            parseFloat(e.target.value) || 0
+                          )
+                        }
+                        className="w-full pl-8 pr-3 py-3 border-2 border-gray-300 rounded-md text-gray-900 bg-white font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+                      />
+                    </div>
+                  </div>
                 </div>
                 <div className="mt-6 pt-6 border-t-2 border-gray-200">
                   <div className="flex justify-between items-center bg-red-50 p-4 rounded-lg">
@@ -742,10 +792,10 @@ export default function ConstantsPage() {
                   </div>
                   <div className="flex items-start gap-3">
                     <span className="font-semibold text-gray-700 min-w-[140px]">
-                      Production Tools:
+                      Execution Time:
                     </span>
                     <code className="text-blue-700 font-mono bg-blue-50 px-3 py-1 rounded">
-                      (pricePerHead × numberOfSheets × 3/5) + $2
+                      numberOfSteps × 0.15 (9 mins/step)
                     </code>
                   </div>
                 </div>
@@ -768,11 +818,10 @@ export default function ConstantsPage() {
                   <button
                     onClick={handleSave}
                     disabled={saving}
-                    className={`px-8 py-4 rounded-lg font-bold text-lg shadow-lg transition-all ${
-                      saving
-                        ? "bg-gray-400 cursor-not-allowed"
-                        : "bg-blue-600 hover:bg-blue-700 hover:shadow-xl transform hover:-translate-y-0.5"
-                    } text-white`}
+                    className={`px-8 py-4 rounded-lg font-bold text-lg shadow-lg transition-all ${saving
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-blue-600 hover:bg-blue-700 hover:shadow-xl transform hover:-translate-y-0.5"
+                      } text-white`}
                   >
                     {saving ? (
                       <span className="flex items-center">

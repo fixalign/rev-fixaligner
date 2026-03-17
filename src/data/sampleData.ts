@@ -8,6 +8,8 @@ export const fixedCosts: FixedCosts = {
   totalFixedCost: 7400,
   legal: 1500,
   accountant_and_audit: 1200,
+  cmo: 0, // TODO: Set correct value if known
+  monthlyCapacityHours: 0, // TODO: Set correct value if known
 };
 
 export const sampleTreatments: TreatmentRecord[] = [
@@ -46,6 +48,13 @@ export const sampleTreatments: TreatmentRecord[] = [
     totalCost: 786.45,
     profit: 3713.55,
     profitMargin: 82.52,
+    allocatedFixedCost: 0, // TODO: Set correct value if known
+    remainingOverhead: 0, // TODO: Set correct value if known
+    monthlyFixedAllocation: 0, // TODO: Set correct value if known
+    estimatedHours: 0, // TODO: Set correct value if known
+    // totalHours removed: not in TreatmentRecord type
+    revenuePerHour: 0, // TODO: Set correct value if known
+    profitPerHour: 0, // TODO: Set correct value if known
   },
   {
     id: "PT002",
@@ -80,6 +89,12 @@ export const sampleTreatments: TreatmentRecord[] = [
     totalCost: 953.36,
     profit: 4246.64,
     profitMargin: 81.67,
+    allocatedFixedCost: 0, // TODO: Set correct value if known
+    remainingOverhead: 0, // TODO: Set correct value if known
+    monthlyFixedAllocation: 0, // TODO: Set correct value if known
+    estimatedHours: 0, // TODO: Set correct value if known
+    revenuePerHour: 0, // TODO: Set correct value if known
+    profitPerHour: 0, // TODO: Set correct value if known
   },
   {
     id: "PT003",
@@ -114,6 +129,12 @@ export const sampleTreatments: TreatmentRecord[] = [
     totalCost: 661.27,
     profit: 3138.73,
     profitMargin: 82.6,
+    allocatedFixedCost: 0, // TODO: Set correct value if known
+    remainingOverhead: 0, // TODO: Set correct value if known
+    monthlyFixedAllocation: 0, // TODO: Set correct value if known
+    estimatedHours: 0, // TODO: Set correct value if known
+    revenuePerHour: 0, // TODO: Set correct value if known
+    profitPerHour: 0, // TODO: Set correct value if known
   },
   {
     id: "PT004",
@@ -150,5 +171,11 @@ export const sampleTreatments: TreatmentRecord[] = [
     totalCost: 869.91,
     profit: 3330.09,
     profitMargin: 79.29,
+    allocatedFixedCost: 0, // TODO: Set correct value if known
+    remainingOverhead: 0, // TODO: Set correct value if known
+    monthlyFixedAllocation: 0, // TODO: Set correct value if known
+    estimatedHours: 0, // TODO: Set correct value if known
+    revenuePerHour: 0, // TODO: Set correct value if known
+    profitPerHour: 0, // TODO: Set correct value if known //
   },
 ];

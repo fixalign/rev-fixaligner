@@ -4,6 +4,7 @@
 /node_modules
 /.pnp
 .pnp.*
+np
 .yarn/*
 !.yarn/patches
 !.yarn/plugins
@@ -39,3 +40,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local notes
+CLAUDE.md

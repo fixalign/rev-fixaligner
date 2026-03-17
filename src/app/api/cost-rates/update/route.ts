@@ -117,7 +117,7 @@ export async function PUT(request: NextRequest) {
       if (Array.isArray(existingFixed) && existingFixed.length > 0) {
         await connection.query(
           `UPDATE fixed_costs 
-           SET rent = ?, utilities = ?, salaries = ?, internet = ?, legal = ?, accountant_and_audit = ?, updated_at = NOW()
+           SET rent = ?, utilities = ?, salaries = ?, internet = ?, legal = ?, accountant_and_audit = ?, cmo = ?, monthly_capacity_hours = ?, updated_at = NOW()
            WHERE year_id = ?`,
           [
             fixed.rent,
@@ -126,13 +126,15 @@ export async function PUT(request: NextRequest) {
             fixed.internet,
             fixed.legal,
             fixed.accountant_and_audit,
+            fixed.cmo,
+            fixed.monthlyCapacityHours,
             yearId,
           ]
         );
       } else {
         await connection.query(
-          `INSERT INTO fixed_costs (year_id, rent, utilities, salaries, internet, legal, accountant_and_audit, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+          `INSERT INTO fixed_costs (year_id, rent, utilities, salaries, internet, legal, accountant_and_audit, cmo, monthly_capacity_hours, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
           [
             yearId,
             fixed.rent,
@@ -141,6 +143,8 @@ export async function PUT(request: NextRequest) {
             fixed.internet,
             fixed.legal,
             fixed.accountant_and_audit,
+            fixed.cmo,
+            fixed.monthlyCapacityHours,
           ]
         );
       }

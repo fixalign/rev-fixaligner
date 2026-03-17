@@ -54,7 +54,9 @@ export default function Home() {
           internet: 200,
           legal: 500,
           accountant_and_audit: 1000,
-          totalFixedCost: 22500,
+          cmo: 5000,
+          monthlyCapacityHours: 192,
+          totalFixedCost: 27500,
         },
       };
 
@@ -83,10 +85,16 @@ export default function Home() {
         const designCost = 1 * rates.direct.designRate;
         const alcoholCost = rates.direct.alcoholRate;
         const tissuesCost = rates.direct.tissuesRate;
-        const toolsCost = (rates.variable.sheetRate * sheetsQty * 3) / 5 + 2;
+        const toolsRate = rates.direct.toolsRate;
+        const toolsCost = toolsRate * sheetsQty * 0.6 + 2;
 
         const totalDirectCost =
           designCost + alcoholCost + tissuesCost + toolsCost;
+
+        const estimatedHours = numberOfSteps * 0.15; // 9 minutes per step
+        const allocatedFixedCost =
+          (rates.fixed.totalFixedCost * estimatedHours) /
+          (rates.fixed.monthlyCapacityHours || 192);
 
         const totalCost =
           totalVariableCost + totalDirectCost + allocatedFixedCost;
@@ -135,7 +143,7 @@ export default function Home() {
               ratePerBox: rates.variable.boxRate,
               totalCost: boxCost,
             },
-            totalVariableCost: totalVariableCost,
+            totalVariableCost,
           },
           directCosts: {
             design: {
@@ -152,15 +160,20 @@ export default function Home() {
               totalCost: tissuesCost,
             },
             productionTools: {
-              ratePerTreatment: toolsCost,
+              ratePerTreatment: toolsRate,
               totalCost: toolsCost,
             },
-            totalDirectCost: totalDirectCost,
+            totalDirectCost,
           },
-          allocatedFixedCost: allocatedFixedCost,
-          totalCost: totalCost,
-          profit: profit,
-          profitMargin: profitMargin,
+          totalCost,
+          profit,
+          profitMargin,
+          allocatedFixedCost,
+          monthlyFixedAllocation: allocatedFixedCost, // Added property for TreatmentRecord compliance
+          remainingOverhead: rates.fixed.totalFixedCost - allocatedFixedCost,
+          estimatedHours,
+          revenuePerHour: price / estimatedHours,
+          profitPerHour: profit / estimatedHours,
         });
       }
 
@@ -231,7 +244,9 @@ export default function Home() {
       internet: 200,
       legal: 500,
       accountant_and_audit: 1000,
-      totalFixedCost: 22500,
+      cmo: 5000,
+      monthlyCapacityHours: 192,
+      totalFixedCost: 27500,
     };
 
     if (selectedYear === "all") {
@@ -259,6 +274,15 @@ export default function Home() {
           (sum, y) => sum + yearlyRates[y].fixed.accountant_and_audit,
           0
         ) / years.length;
+      const avgCmo =
+        years.reduce((sum, y) => sum + yearlyRates[y].fixed.cmo, 0) /
+        years.length;
+      const avgCapacity =
+        years.reduce(
+          (sum, y) => sum + (yearlyRates[y].fixed.monthlyCapacityHours || 192),
+          0
+        ) / years.length;
+
       return {
         rent: avgRent,
         utilities: avgUtilities,
@@ -266,22 +290,30 @@ export default function Home() {
         internet: avgInternet,
         legal: avgLegal,
         accountant_and_audit: avgAccountant,
+        cmo: avgCmo,
+        monthlyCapacityHours: avgCapacity,
         totalFixedCost:
           avgRent +
           avgUtilities +
           avgSalaries +
           avgInternet +
           avgLegal +
-          avgAccountant,
+          avgAccountant +
+          avgCmo,
       };
     }
     return yearlyRates[selectedYear]?.fixed || defaultFixed;
   }, [selectedYear, yearlyRates]);
 
-  const stats = calculateDashboardStats(filteredTreatments, currentFixedCosts);
+  const stats = calculateDashboardStats(
+    filteredTreatments,
+    yearlyRates,
+    selectedYear
+  );
   const financialSummary = calculateFinancialSummary(
     filteredTreatments,
-    currentFixedCosts
+    yearlyRates,
+    selectedYear
   );
   const selectedPatient = selectedPatientId
     ? filteredTreatments.find((t) => t.id === selectedPatientId)
@@ -384,11 +416,10 @@ export default function Home() {
                 )}
                 <button
                   onClick={() => setIsSimulation(!isSimulation)}
-                  className={`px-4 py-2 rounded-md font-medium ${
-                    isSimulation
-                      ? "bg-orange-600 hover:bg-orange-700 text-white"
-                      : "bg-blue-600 hover:bg-blue-700 text-white"
-                  }`}
+                  className={`px-4 py-2 rounded-md font-medium ${isSimulation
+                    ? "bg-orange-600 hover:bg-orange-700 text-white"
+                    : "bg-blue-600 hover:bg-blue-700 text-white"
+                    }`}
                 >
                   {isSimulation ? "📊 Exit Simulation" : "🎮 Run Simulation"}
                 </button>
@@ -396,7 +427,13 @@ export default function Home() {
                   href="/constants"
                   className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
                 >
-                  Manage Constants
+                  <span>Overhead Share:</span>
+                </Link>
+                <Link
+                  href="/formulas"
+                  className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+                >
+                  View Formulas
                 </Link>
               </div>
             </div>
@@ -465,11 +502,10 @@ export default function Home() {
               )}
               <button
                 onClick={() => setIsSimulation(!isSimulation)}
-                className={`px-4 py-2 rounded-md font-medium ${
-                  isSimulation
-                    ? "bg-orange-600 hover:bg-orange-700 text-white"
-                    : "bg-blue-600 hover:bg-blue-700 text-white"
-                }`}
+                className={`px-4 py-2 rounded-md font-medium ${isSimulation
+                  ? "bg-orange-600 hover:bg-orange-700 text-white"
+                  : "bg-blue-600 hover:bg-blue-700 text-white"
+                  }`}
               >
                 {isSimulation ? "📊 Exit Simulation" : "🎮 Run Simulation"}
               </button>
@@ -478,6 +514,12 @@ export default function Home() {
                 className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
               >
                 Manage Constants
+              </Link>
+              <Link
+                href="/formulas"
+                className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+              >
+                View Formulas
               </Link>
             </div>
           </div>
@@ -510,65 +552,76 @@ export default function Home() {
                 <CostBreakdown treatment={selectedPatient} />
               </div>
             ) : (
-              <div className="bg-white rounded-lg shadow p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">
-                  Fixed Costs (Monthly)
-                  {selectedYear !== "all" && ` - ${selectedYear}`}
-                </h2>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Rent</span>
-                    <span className="font-medium text-gray-900">
-                      ${currentFixedCosts.rent.toLocaleString()}
-                    </span>
+              selectedYear !== "all" && (
+                <div className="bg-white rounded-lg shadow p-6">
+                  <h2 className="text-xl font-bold text-gray-900 mb-4">
+                    Fixed Costs (Monthly) - {selectedYear}
+                  </h2>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Rent</span>
+                      <span className="font-medium text-gray-900">
+                        ${(currentFixedCosts.rent || 0).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Utilities</span>
+                      <span className="font-medium text-gray-900">
+                        ${(currentFixedCosts.utilities || 0).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Salaries</span>
+                      <span className="font-medium text-gray-900">
+                        ${(currentFixedCosts.salaries || 0).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Internet</span>
+                      <span className="font-medium text-gray-900">
+                        ${(currentFixedCosts.internet || 0).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Legal</span>
+                      <span className="font-medium text-gray-900">
+                        ${(currentFixedCosts.legal || 0).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Accountant & Audit</span>
+                      <span className="font-medium text-gray-900">
+                        $
+                        {(
+                          currentFixedCosts.accountant_and_audit || 0
+                        ).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">CMO Fee</span>
+                      <span className="font-medium text-gray-900">
+                        ${(currentFixedCosts.cmo || 0).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between pt-3 border-t-2 border-gray-300">
+                      <span className="font-bold text-gray-900">
+                        Total Fixed Costs
+                      </span>
+                      <span className="font-bold text-lg text-red-600">
+                        $
+                        {(currentFixedCosts.totalFixedCost || 0).toLocaleString()}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Utilities</span>
-                    <span className="font-medium text-gray-900">
-                      ${currentFixedCosts.utilities.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Salaries</span>
-                    <span className="font-medium text-gray-900">
-                      ${currentFixedCosts.salaries.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Internet</span>
-                    <span className="font-medium text-gray-900">
-                      ${currentFixedCosts.internet.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Legal</span>
-                    <span className="font-medium text-gray-900">
-                      ${currentFixedCosts.legal.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Accountant & Audit</span>
-                    <span className="font-medium text-gray-900">
-                      ${currentFixedCosts.accountant_and_audit.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex justify-between pt-3 border-t-2 border-gray-300">
-                    <span className="font-bold text-gray-900">
-                      Total Fixed Costs
-                    </span>
-                    <span className="font-bold text-lg text-red-600">
-                      ${currentFixedCosts.totalFixedCost.toLocaleString()}
-                    </span>
-                  </div>
-                </div>
 
-                <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-                  <p className="text-sm text-gray-700">
-                    💡 Click on a patient in the table below to see detailed
-                    cost breakdown
-                  </p>
+                  <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                    <p className="text-sm text-gray-700">
+                      💡 Click on a patient in the table below to see detailed
+                      cost breakdown
+                    </p>
+                  </div>
                 </div>
-              </div>
+              )
             )}
           </div>
 
