@@ -227,6 +227,21 @@ export async function GET() {
       // Handle Clinic ID 1 special logic: Price = Total Cost
       // Only applies from Jan 2026 onwards
       const isClinic1 = Number(patient.clinic_id) === 1 || Number(patient.clinic_id) === 5 || Number(patient.clinic_id) === 34;
+
+      // DIAGNOSTIC — remove after fix confirmed
+      if ((patient.clinic_name || '').toUpperCase().includes('MINEERS')) {
+        console.log('[MINEERS DEBUG]', {
+          id: patient.id,
+          clinic_id: patient.clinic_id,
+          clinic_id_type: typeof patient.clinic_id,
+          clinic_id_as_number: Number(patient.clinic_id),
+          isClinic1,
+          allocationYear,
+          yearMonthKey,
+          timer_delivery_ended_at: patient.timer_delivery_ended_at,
+          isClinic1Exception: isClinic1 && (allocationYear >= 2024),
+        });
+      }
       let finalPrice = patient.price != null ? Number(patient.price) : 0;
 
       // Extract month from key "YYYY-M"
