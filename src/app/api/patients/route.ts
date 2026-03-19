@@ -233,9 +233,7 @@ export async function GET() {
 
       const isClinic1Exception = isClinic1 && (allocationYear >= 2024);
 
-      if (isMinersBG && allocationYear >= 2024) {
-        finalPrice = 2000;
-      } else if (isMineersSmileCenter && allocationYear >= 2024) {
+      if (isClinic1Exception) {
         finalPrice = totalCost;
       }
 
