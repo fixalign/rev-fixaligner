@@ -14,6 +14,7 @@ interface DbPatient extends RowDataPacket {
   treatment_started: string;
   treatment_ended: string | null;
   timer_delivery_ended_at: string | null;
+  effective_date: string;
   status: string;
   price: number;
   remaining_amount: number;
@@ -67,13 +68,13 @@ interface FixedCost extends RowDataPacket {
 
 export async function GET() {
   try {
-    // Fetch patients with timer_delivery_ended_at
     const [patients] = await pool.query<DbPatient[]>(
-      `SELECT v.*, p.timer_delivery_ended_at 
-       FROM patient_treatment_view v 
-       LEFT JOIN patients p ON v.id = p.id 
-       WHERE p.timer_delivery_ended_at IS NOT NULL
-       ORDER BY p.timer_delivery_ended_at DESC`
+      `SELECT v.*, p.timer_delivery_ended_at,
+              COALESCE(p.timer_delivery_ended_at, p.timer_start_date, p.created_at) AS effective_date
+       FROM patient_treatment_view v
+       LEFT JOIN patients p ON v.id = p.id
+       WHERE p.deleted_at IS NULL
+       ORDER BY effective_date DESC`
     );
 
     // Fetch all years and rates
@@ -99,9 +100,7 @@ export async function GET() {
     // First pass: Prepare yearMonth keys and count treatments per month
     const patientCountByYearMonth = new Map<string, number>();
     const patientsWithKeys = patients.map((patient) => {
-      // Group by year and month using format 'YYYY-M' strictly based on handover date
-      // We know timer_delivery_ended_at is present due to SQL filter
-      const dateToUse = new Date(patient.timer_delivery_ended_at!);
+      const dateToUse = new Date(patient.effective_date);
 
       const year = dateToUse.getFullYear();
       const month = dateToUse.getMonth(); // 0-11
