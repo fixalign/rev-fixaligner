@@ -71,39 +71,39 @@ export async function GET() {
 
       yearlyRates[yearRow.year] = {
         variable: {
-          sheetRate: Number(variable?.sheet_rate || 8),
-          caseRate: Number(variable?.case_rate || 45),
-          resinRate: Number(variable?.resin_rate || 120),
-          bagRate: Number(variable?.bag_rate || 0.5),
-          boxRate: Number(variable?.box_rate || 15),
+          sheetRate: Number(variable?.sheet_rate ?? 8),
+          caseRate: Number(variable?.case_rate ?? 45),
+          resinRate: Number(variable?.resin_rate ?? 120),
+          bagRate: Number(variable?.bag_rate ?? 0.5),
+          boxRate: Number(variable?.box_rate ?? 15),
         },
         direct: {
-          designRate: Number(direct?.design_rate || 150),
-          alcoholRate: Number(direct?.alcohol_rate || 10),
-          tissuesRate: Number(direct?.tissues_rate || 5),
-          toolsRate: Number(direct?.tools_rate || 20),
+          designRate: Number(direct?.design_rate ?? 150),
+          alcoholRate: Number(direct?.alcohol_rate ?? 10),
+          tissuesRate: Number(direct?.tissues_rate ?? 5),
+          toolsRate: Number(direct?.tools_rate ?? 20),
         },
         fixed: {
-          rent: Number(fixed?.rent || 5000),
-          utilities: Number(fixed?.utilities || 800),
-          salaries: Number(fixed?.salaries || 15000),
-          internet: Number(fixed?.internet || 200),
-          legal: Number(fixed?.legal || 500),
-          accountant_and_audit: Number(fixed?.accountant_and_audit || 1000),
-          cmo: Number(fixed?.cmo || 5000),
+          rent: Number(fixed?.rent ?? 5000),
+          utilities: Number(fixed?.utilities ?? 800),
+          salaries: Number(fixed?.salaries ?? 15000),
+          internet: Number(fixed?.internet ?? 200),
+          legal: Number(fixed?.legal ?? 500),
+          accountant_and_audit: Number(fixed?.accountant_and_audit ?? 1000),
+          cmo: Number(fixed?.cmo ?? 5000),
           monthlyCapacityHours: Number(
             fixed?.monthly_capacity_hours != null
               ? fixed.monthly_capacity_hours
               : 192
           ),
           totalFixedCost:
-            Number(fixed?.rent || 5000) +
-            Number(fixed?.utilities || 800) +
-            Number(fixed?.salaries || 15000) +
-            Number(fixed?.internet || 200) +
-            Number(fixed?.legal || 500) +
-            Number(fixed?.accountant_and_audit || 1000) +
-            Number(fixed?.cmo || 5000),
+            Number(fixed?.rent ?? 5000) +
+            Number(fixed?.utilities ?? 800) +
+            Number(fixed?.salaries ?? 15000) +
+            Number(fixed?.internet ?? 200) +
+            Number(fixed?.legal ?? 500) +
+            Number(fixed?.accountant_and_audit ?? 1000) +
+            Number(fixed?.cmo ?? 5000),
         },
       };
     });
